@@ -23,7 +23,7 @@
 //
 
 #include "Agentuino.h"
-#include "EthernetUdp.h"
+#include "UIPUdp.h"
 
 EthernetUDP Udp;
 SNMP_API_STAT_CODES AgentuinoClass::begin()

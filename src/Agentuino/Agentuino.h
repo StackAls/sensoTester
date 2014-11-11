@@ -33,7 +33,7 @@
 //Frees a pointer only if it is !NULL and sets its value to NULL. 
 
 #include "Arduino.h"
-#include "Udp.h"
+#include "UIPUdp.h"
 
 extern "C" {
 	// callback function

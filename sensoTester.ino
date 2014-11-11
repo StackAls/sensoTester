@@ -24,11 +24,11 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <EEPROM.h>
-#include <UIPEthernet.h>
-#include <UIPUdp.h>
 #include <avr/pgmspace.h>
 #include <Wire.h>
 
+#include "UIPEthernet.h"
+#include "UIPUdp.h"
 #include "DHT.h"
 #include "thermistor.h"
 #include "Adafruit_BMP085.h"
