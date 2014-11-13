@@ -28,8 +28,8 @@
 
 
 #ifdef SNMP_ON
+	#include "tinySNMP.h"
 	EthernetUDP udp;
-	#define SNMP_MAX_PACKET_LEN UIP_UDP_MAXPACKETSIZE
 #endif
 //Analog sensor
 //int AnalogChannel = 15;
@@ -133,59 +133,18 @@ void loop ()
 */
 
 		
-	#ifdef SNMP_ON
+#ifdef SNMP_ON
 	//start udp server
 	int success = udp.begin(161);
-	Serial.print("Initialize UDP: ");
-	Serial.println(success ? "success" : "failed");
+	byte _packet[SNMP_MAX_PACKET_LEN]
+	//---------	
 	
-	int size = udp.parsePacket();
-	byte _packet[SNMP_MAX_PACKET_LEN];
+	_packetSNMPread(udp,_packet);
 	
-	if (size) 
-	{
-		Serial.print("sec ");
-		Serial.println(millis() / 1000);
-		
-		Serial.print("Packet size = "); 
-		Serial.println(size);
-		
-		Serial.print("From ");
-		IPAddress remote = udp.remoteIP();
-		for (int i =0; i < 4; i++)
-		{
-		  Serial.print(remote[i], DEC);
-		  if (i < 3)
-		  {
-			Serial.print(".");
-		  }
-		}
-		Serial.print(", port ");
-		Serial.println(udp.remotePort());
-		
-		do
-		  {
-			int len = udp.read(_packet,size);
-		  }
-		while (udp.available());
-		//finish reading this packet:
-		udp.flush();
-		
-		for(int n = 0;n < size;n++)
-		{
-			Serial.print("[");
-			Serial.print(n); 
-			Serial.print("]= "); 
-			Serial.print(_packet[n],HEX);
-			Serial.print(" ");
-			Serial.println(_packet[n]);
-		}
-		free(_packet);
-	}
-		
+	
 	//stop udp server
 		udp.stop();
-	#endif
+#endif
 	
 	//delay(5000);
 	
