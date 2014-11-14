@@ -13,8 +13,10 @@
 #define SNMP_ERR_READ_ONLY		4
 #define SNMP_ERR_GEN_ERROR		5
 
+#define SNMP_PACKET_INVALID		128
+
 //read udp packet to buffer
-int _packetSNMPread(EthernetUDP *udp, byte *buffer);
+int _packetSNMPread(EthernetUDP, byte []);
 
 
 #endif

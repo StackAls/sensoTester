@@ -45,13 +45,82 @@ DHT dht(DHTPIN, DHTTYPE);
 Adafruit_BMP085 bmp;
 //-------------
 
+int counter = 0;
 
+struct cfgStruct 
+{
+	//General settings
+	char cfgVersion[6];	//config version
+	//Network settings
+	 byte mac[7]; 
+	 byte ip[5],subnet[5],gateway[5],dnsServer[5];
+	//char c;
+	//long d;
+	//float e[6];
+	//SNMP settings
+	char communitySNMP[7];
+	//byte ipTrapServer[5];
+	//int ipTrapPort;
+} cfg =
+	{
+		"v.1.0",
+		// The default values
+		{0x00,0x99,0x99,0x3D,0x30,0x42},
+		{10,62,64,249},{255,255,255,0},{10,62,64,8},{10,62,0,235},
+		//'c',
+		//10000,
+		//{4.5, 5.5, 7, 8.5, 10, 12}
+		"public"
+	};
+
+struct MIB
+{
+	byte numMIB[11];
+	char setMIB[20];
+} mibSNMP[] =
+	{	
+		// RFC1213-MIB OIDs
+		// .iso (.1)
+		// .iso.org (.1.3)
+		// .iso.org.dod (.1.3.6)
+		// .iso.org.dod.internet (.1.3.6.1)
+		// .iso.org.dod.internet.mgmt (.1.3.6.1.2)
+		// .iso.org.dod.internet.mgmt.mib-2 (.1.3.6.1.2.1)
+		// .iso.org.dod.internet.mgmt.mib-2.system (.1.3.6.1.2.1.1)
+		// .iso.org.dod.internet.mgmt.mib-2.system.sysDescr (.1.3.6.1.2.1.1.1)
+		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x1,0x0},{"Arduino tinySNMP"}},
+		// .iso.org.dod.internet.mgmt.mib-2.system.sysObjectID (.1.3.6.1.2.1.1.2)
+		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x2,0x0},{"1.3.6.1.3.99.0"}},
+		// .iso.org.dod.internet.mgmt.mib-2.system.sysUpTime (.1.3.6.1.2.1.1.3)
+		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x3,0x0},{"0"}},
+		// .iso.org.dod.internet.mgmt.mib-2.system.sysContact (.1.3.6.1.2.1.1.4)
+		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x4,0x0},{"Alexander Bugrov"}},
+		// .iso.org.dod.internet.mgmt.mib-2.system.sysName (.1.3.6.1.2.1.1.5)
+		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x5,0x0},{"tinySNMP"}},
+		// .iso.org.dod.internet.mgmt.mib-2.system.sysLocation (.1.3.6.1.2.1.1.6)
+		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x6,0x0},{"Russia NNov"}},
+		// Arduino defined OIDs
+		// .iso.org.dod.internet.private (.1.3.6.1.4)
+		// .iso.org.dod.internet.private.enterprises (.1.3.6.1.4.1)
+		// .iso.org.dod.internet.private.enterprises.arduino (.1.3.6.1.4.1.36582)
+		//
+		//analog sensors (.1.3.6.1.4.1.36582.1.x.0)
+		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x1,0x0},{"Sensor 1"}},
+		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x2,0x0},{"Sensor 2"}},
+		//...
+		//digital sensors (.1.3.6.1.4.1.36582.2.y.0)
+		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x1,0x0},{"Sensor 1"}},
+		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x2,0x0},{"Sensor 2"}}
+		//...
+		
+	};
+/*
 static byte mymac[] = { 0x00,0x99,0x99,0x3D,0x30,0x42 };  // ethernet interface mac address
 IPAddress myip(10,62,64,249);  // default ip address
 IPAddress subnet(255,255,255,0);  // default subnet
 IPAddress gateway(10,62,64,8);   // default gateway
 IPAddress dnsServer(10,62,0,235);  // default dns
-
+*/
 //-------------SETUP------------------
 void setup ()
 {
@@ -62,14 +131,14 @@ void setup ()
 #endif
 
 //DHCP-init
-	if (!Ethernet.begin(mymac))
+	if (!Ethernet.begin(cfg.mac))
 	{
 		#ifdef DEBUG
 		Serial.println("DHCP failed");
 		#endif
 
 		//initialize default eth
-		Ethernet.begin(mymac, myip, dnsServer, gateway, subnet);
+		Ethernet.begin(cfg.mac, cfg.ip, cfg.dnsServer, cfg.gateway, cfg.subnet);
 	}
 	else
 	{
@@ -113,8 +182,7 @@ void loop ()
 		Serial.print(" - - ");
 		Serial.println(sensorA[analogChannel]);
 		#endif
-		*/
-			
+		*/	
 	}
 	//read DHT
 	float t = dht.readTemperature(0);
@@ -131,19 +199,22 @@ void loop ()
 		h=0.0;
 	}
 */
-
+	//Serial.print("sec ");
+	//Serial.println(millis() / 1000);
 		
 #ifdef SNMP_ON
 	//start udp server
 	int success = udp.begin(161);
-	byte _packet[SNMP_MAX_PACKET_LEN]
+	//Serial.print("Initialize UDP: ");
+	//Serial.println(success ? "success" : "failed");
+	byte _packet[SNMP_MAX_PACKET_LEN];
 	//---------	
 	
 	_packetSNMPread(udp,_packet);
 	
-	
+	udp.flush();
 	//stop udp server
-		udp.stop();
+	udp.stop();
 #endif
 	
 	//delay(5000);
@@ -163,6 +234,16 @@ void loop ()
 	*/
 	//Serial.print("sec ");
 	//Serial.println(millis() / 1000);
-	Serial.print("~");
 	#endif
+	if(counter < 100) 
+	{
+		counter++;
+	}
+	else
+	{
+		counter = 0;
+		Ethernet.maintain();
+		Serial.print("Maintain sec ");
+		Serial.println(millis() / 1000);
+	}
 }
