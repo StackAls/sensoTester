@@ -207,14 +207,54 @@ void loop ()
 	int success = udp.begin(161);
 	//Serial.print("Initialize UDP: ");
 	//Serial.println(success ? "success" : "failed");
-	byte _packet[SNMP_MAX_PACKET_LEN];
-	//---------	
+	//byte packet[SNMP_MAX_PACKET_LEN];
 	
-	_packetSNMPread(udp,_packet);
+	int packetSize = udpSNMP.parsePacket();
+	if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
+	{
 	
-	udp.flush();
-	//stop udp server
-	udp.stop();
+		Serial.print("Packet size = "); 
+		Serial.println(packetSize);
+		
+		IPAddress remoteIP = udp.remoteIP();
+		int remotePort = udp.remotePort();
+/*
+		//print remote ip
+		Serial.print("From ");
+		for (int i =0; i < 4; i++)
+		{
+		  Serial.print(_remoteIP[i], DEC);
+		  if (i < 3)
+		  {
+			Serial.print(".");
+		  }
+		}
+		Serial.print(", port ");
+		Serial.println(_remotePort);
+*/		byte packet[packetSize];
+		do //read
+		{
+			int len = udp.read(packet,packetSize); 
+		}
+		while (udp.available());
+		udp.flush(); //finish reading this packet
+
+		//print packet
+		for(int n = 0;n < packetSize;n++)
+		{
+			Serial.print("[");
+			Serial.print(n); 
+			Serial.print("]= "); 
+			Serial.print(packet[n],HEX);
+			Serial.print(" ");
+			Serial.println(packet[n]);
+		}
+		//---------	
+		packetSNMPread(packet);
+		//udp.flush(); //finish reading this packet
+	}
+	
+	udp.stop(); //stop udp server
 #endif
 	
 	//delay(5000);
@@ -242,7 +282,7 @@ void loop ()
 	else
 	{
 		counter = 0;
-		Ethernet.maintain();
+		Ethernet.maintain(); //reinit eth
 		Serial.print("Maintain sec ");
 		Serial.println(millis() / 1000);
 	}

@@ -1,60 +1,19 @@
 #include "tinySNMP.h"
 
-int _packetSNMPread(EthernetUDP _udpSNMP, byte _packet[])
+int packetSNMPread(byte _packet[])
 {
-	//Serial.print("Initialize UDP: ");
-	//Serial.println(success ? "success" : "failed");
-	int _packetSize = _udpSNMP.parsePacket();
-	if(_packetSize == 0) return SNMP_PACKET_INVALID;
-	
-	Serial.print("Packet size = "); 
-	Serial.println(_packetSize);
-	
-	IPAddress _remoteIP = _udpSNMP.remoteIP();
-	int _remotePort = _udpSNMP.remotePort();
-/*
-	//print remote ip
-	Serial.print("From ");
-	for (int i =0; i < 4; i++)
+	int _packetSize = sizeof (_packet[])
+	//print packet
+	for(int n = 0;n < _packetSize;n++)
 	{
-	  Serial.print(_remoteIP[i], DEC);
-	  if (i < 3)
-	  {
-		Serial.print(".");
-	  }
+		Serial.print("p[");
+		Serial.print(n); 
+		Serial.print("]= "); 
+		Serial.print(_packet[n],HEX);
+		Serial.print(" ");
+		Serial.println(_packet[n]);
 	}
-	Serial.print(", port ");
-	Serial.println(_remotePort);
-*/	
-	//copy packet to buffer
-	if(_packetSize > 0) 
-	{
-		if(_packetSize > SNMP_MAX_PACKET_LEN) //max packet size
-		{
-			return SNMP_ERR_TOO_BIG;
-		}
-		else
-		{
-			do //read
-			{
-				int len = _udpSNMP.read(_packet,_packetSize); 
-			}
-			while (_udpSNMP.available());
-			//_udpSNMP.flush(); //finish reading this packet
 
-			//print packet
-			for(int n = 0;n < _packetSize;n++)
-			{
-				Serial.print("[");
-				Serial.print(n); 
-				Serial.print("]= "); 
-				Serial.print(_packet[n],HEX);
-				Serial.print(" ");
-				Serial.println(_packet[n]);
-			}
-		
-		}
-	}
 	
 	// packet check to SNMP and size
 	if ( _packet[0] != 0x30 || _packet[1] != _packetSize-2) 

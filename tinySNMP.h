@@ -16,7 +16,7 @@
 #define SNMP_PACKET_INVALID		128
 
 //read udp packet to buffer
-int _packetSNMPread(EthernetUDP, byte []);
+int packetSNMPread(byte []);
 
 
 #endif
