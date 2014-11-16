@@ -73,11 +73,7 @@ struct cfgStruct
 		"public"
 	};
 
-struct MIB
-{
-	byte numMIB[11];
-	char setMIB[20];
-} mibSNMP[] =
+struct MIB mibSNMP[] =
 	{	
 		// RFC1213-MIB OIDs
 		// .iso (.1)
@@ -90,7 +86,7 @@ struct MIB
 		// .iso.org.dod.internet.mgmt.mib-2.system.sysDescr (.1.3.6.1.2.1.1.1)
 		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x1,0x0},{"Arduino tinySNMP"}},
 		// .iso.org.dod.internet.mgmt.mib-2.system.sysObjectID (.1.3.6.1.2.1.1.2)
-		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x2,0x0},{"1.3.6.1.3.99.0"}},
+		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x2,0x0},{"1.3.6.1.3.36582.0"}},
 		// .iso.org.dod.internet.mgmt.mib-2.system.sysUpTime (.1.3.6.1.2.1.1.3)
 		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x3,0x0},{"0"}},
 		// .iso.org.dod.internet.mgmt.mib-2.system.sysContact (.1.3.6.1.2.1.1.4)
@@ -250,7 +246,7 @@ void loop ()
 			Serial.println(packet[n]);
 		}
 		//---------	
-		packetSNMPread(packet);
+		packetSNMPcheck(packet,cfg.communitySNMP,mibSNMP);
 		//udp.flush(); //finish reading this packet
 	}
 	
