@@ -159,6 +159,11 @@ void setup ()
     Serial.print("My DNS = ");
     Serial.println(Ethernet.dnsServerIP());
 #endif	
+
+	//start udp server
+	int success = udp.begin(161);
+	//Serial.print("Initialize UDP: ");
+	//Serial.println(success ? "success" : "failed");
 	
 }
 
@@ -200,12 +205,12 @@ void loop ()
 		
 #ifdef SNMP_ON
 	//start udp server
-	int success = udp.begin(161);
+	//int success = udp.begin(161);
 	//Serial.print("Initialize UDP: ");
 	//Serial.println(success ? "success" : "failed");
 	//byte packet[SNMP_MAX_PACKET_LEN];
 	
-	int packetSize = udpSNMP.parsePacket();
+	int packetSize = udp.parsePacket();
 	if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
 	{
 	
@@ -227,7 +232,8 @@ void loop ()
 		}
 		Serial.print(", port ");
 		Serial.println(_remotePort);
-*/		byte packet[packetSize];
+*/		
+		byte packet[packetSize];
 		do //read
 		{
 			int len = udp.read(packet,packetSize); 
@@ -246,11 +252,13 @@ void loop ()
 			Serial.println(packet[n]);
 		}
 		//---------	
-		packetSNMPcheck(packet,cfg.communitySNMP,mibSNMP);
+		int error = packetSNMPcheck(packet,packetSize,cfg.communitySNMP,mibSNMP);
+		Serial.print("error = ");
+		Serial.println(error);
 		//udp.flush(); //finish reading this packet
 	}
 	
-	udp.stop(); //stop udp server
+	//udp.stop(); //stop udp server
 #endif
 	
 	//delay(5000);
@@ -271,14 +279,16 @@ void loop ()
 	//Serial.print("sec ");
 	//Serial.println(millis() / 1000);
 	#endif
-	if(counter < 100) 
+	if(counter < 500) 
 	{
 		counter++;
 	}
 	else
 	{
 		counter = 0;
+		udp.stop(); //stop udp server
 		Ethernet.maintain(); //reinit eth
+		udp.begin(161);
 		Serial.print("Maintain sec ");
 		Serial.println(millis() / 1000);
 	}

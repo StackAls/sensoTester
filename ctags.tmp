@@ -1,0 +1,76 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_MOD_BY	Bostjan Mihoric	/ccompletion@gmail.com/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	/unofficial modification/
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	/unofficial modification/
+At	thermistor.h	14;"	macro
+Bt	thermistor.h	15;"	macro
+Ct	thermistor.h	16;"	macro
+LCDB_H	lcdb.h	2;"	macro
+MIB	tinySNMP.h	22;"	struct
+Rb	thermistor.h	5;"	macro
+SNMP_ERR_BAD_VALUE	tinySNMP.h	12;"	macro
+SNMP_ERR_GEN_ERROR	tinySNMP.h	14;"	macro
+SNMP_ERR_NO_ERROR	tinySNMP.h	9;"	macro
+SNMP_ERR_NO_SUCH_NAME	tinySNMP.h	11;"	macro
+SNMP_ERR_READ_ONLY	tinySNMP.h	13;"	macro
+SNMP_ERR_TOO_BIG	tinySNMP.h	10;"	macro
+SNMP_MAX_PACKET_LEN	tinySNMP.h	7;"	macro
+SNMP_PDU_GET	tinySNMP.h	16;"	macro
+SNMP_PDU_GET_NEXT	tinySNMP.h	17;"	macro
+SNMP_PDU_RESPONSE	tinySNMP.h	18;"	macro
+SNMP_PDU_SET	tinySNMP.h	19;"	macro
+SNMP_PDU_TRAP	tinySNMP.h	20;"	macro
+TC	thermistor.h	9;"	macro
+TF	thermistor.h	10;"	macro
+THERMISTOR_H	thermistor.h	2;"	macro
+TINYSNMP_H	tinySNMP.h	2;"	macro
+TK	thermistor.h	8;"	macro
+Temp	thermistor.cpp	6;"	local
+Thermistor	thermistor.cpp	4;"	function
+Thermistor	thermistor.h	18;"	prototype
+_comLen	tinySNMP.cpp	35;"	local
+_communityLen	tinySNMP.cpp	37;"	local
+_eriLen	tinySNMP.cpp	70;"	local
+_eriType	tinySNMP.cpp	69;"	local
+_eriValue	tinySNMP.cpp	71;"	local
+_errLen	tinySNMP.cpp	66;"	local
+_errType	tinySNMP.cpp	65;"	local
+_errValue	tinySNMP.cpp	67;"	local
+_oidLen	tinySNMP.cpp	80;"	local
+_oidSNMP	tinySNMP.cpp	81;"	local
+_oidType	tinySNMP.cpp	79;"	local
+_oidValue	tinySNMP.cpp	93;"	local
+_pduLen	tinySNMP.cpp	59;"	local
+_pduType	tinySNMP.cpp	58;"	local
+_ridLen	tinySNMP.cpp	62;"	local
+_ridType	tinySNMP.cpp	61;"	local
+_ridValue	tinySNMP.cpp	63;"	local
+_seqLen	tinySNMP.cpp	30;"	local
+_valueLen	tinySNMP.cpp	92;"	local
+_valueType	tinySNMP.cpp	91;"	local
+_vbiLen	tinySNMP.cpp	77;"	local
+_vbiType	tinySNMP.cpp	76;"	local
+_vblLen	tinySNMP.cpp	74;"	local
+_vblType	tinySNMP.cpp	73;"	local
+_versionSNMP	tinySNMP.cpp	32;"	local
+adc_key_in	lcdb.cpp	6;"	variable
+btnDOWN	lcdb.h	5;"	macro
+btnLEFT	lcdb.h	6;"	macro
+btnNONE	lcdb.h	9;"	macro
+btnRIGHT	lcdb.h	7;"	macro
+btnSELECT	lcdb.h	8;"	macro
+btnUP	lcdb.h	4;"	macro
+lcd_key	lcdb.cpp	5;"	variable
+numMIB	tinySNMP.h	24;"	member	struct:MIB
+packetSNMPcheck	tinySNMP.cpp	3;"	function
+packetSNMPcheck	tinySNMP.h	29;"	prototype
+print	tinySNMP.cpp	52;"	prototype	file:
+println	tinySNMP.cpp	40;"	prototype	file:
+println	tinySNMP.cpp	54;"	prototype	file:
+println	tinySNMP.cpp	9;"	prototype	file:
+read_LCD_buttons	lcdb.cpp	8;"	function
+read_LCD_buttons	lcdb.h	11;"	prototype
+setMIB	tinySNMP.h	25;"	member	struct:MIB

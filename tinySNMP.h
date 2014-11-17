@@ -25,8 +25,8 @@ struct MIB
 	char setMIB[20];
 };
 //check udp packet to buffer
-//buffer,community,mib
-int packetSNMPcheck(byte [],char [],struct MIB[]);
+//buffer,size,community,mib
+int packetSNMPcheck(byte[],int,char[],struct MIB[]);
 
 
 
