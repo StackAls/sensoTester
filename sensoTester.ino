@@ -233,7 +233,7 @@ void loop ()
 		Serial.print(", port ");
 		Serial.println(_remotePort);
 */		
-		byte packet[packetSize];
+		char packet[packetSize+1];
 		do //read
 		{
 			int len = udp.read(packet,packetSize); 
@@ -241,7 +241,7 @@ void loop ()
 		while (udp.available());
 		udp.flush(); //finish reading this packet
 
-		//print packet
+/*		//print packet
 		for(int n = 0;n < packetSize;n++)
 		{
 			Serial.print("[");
@@ -252,9 +252,24 @@ void loop ()
 			Serial.println(packet[n]);
 		}
 		//---------	
-		int error = packetSNMPcheck(packet,packetSize,cfg.communitySNMP,mibSNMP);
-		Serial.print("error = ");
+		Serial.print("cfg.communitySNMP = ");
+		Serial.println(cfg.communitySNMP);
+*/		
+		int error = packetSNMPcheck(packet,packetSize); //,cfg.communitySNMP,mibSNMP);
+		Serial.print("error packetSNMPcheck = ");
 		Serial.println(error);
+
+		if(!error)
+		{
+			error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,sizeof(cfg.communitySNMP)-1);
+			Serial.print("error packetSNMPcommunity= ");
+			Serial.println(error);
+			if(!error)
+			{
+				Serial.print("GOOD");
+				//TODO read oid
+			}
+		}
 		//udp.flush(); //finish reading this packet
 	}
 	

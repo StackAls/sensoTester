@@ -24,9 +24,12 @@ struct MIB
 	byte numMIB[11];
 	char setMIB[20];
 };
+
 //check udp packet to buffer
 //buffer,size,community,mib
-int packetSNMPcheck(byte[],int,char[],struct MIB[]);
+int packetSNMPcheck(char[],int);//,char [],struct MIB[]);
+//return community name
+int packetSNMPcommunity(char[],int,char[],int);
 
 
 
