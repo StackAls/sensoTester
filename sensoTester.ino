@@ -211,12 +211,13 @@ void loop ()
 	//byte packet[SNMP_MAX_PACKET_LEN];
 	
 	int packetSize = udp.parsePacket();
+	struct OID oid;
 	if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
 	{
-	
+/*	
 		Serial.print("Packet size = "); 
 		Serial.println(packetSize);
-		
+*/
 		IPAddress remoteIP = udp.remoteIP();
 		int remotePort = udp.remotePort();
 /*
@@ -256,18 +257,34 @@ void loop ()
 		Serial.println(cfg.communitySNMP);
 */		
 		int error = packetSNMPcheck(packet,packetSize); //,cfg.communitySNMP,mibSNMP);
+
 		Serial.print("error packetSNMPcheck = ");
 		Serial.println(error);
 
 		if(!error)
 		{
 			error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,sizeof(cfg.communitySNMP)-1);
+			
 			Serial.print("error packetSNMPcommunity= ");
 			Serial.println(error);
+			
 			if(!error)
 			{
-				Serial.print("GOOD");
+				//Serial.println("Read OIDs");
+				packetSNMPprint(packet,packetSize);
 				//TODO read oid
+				error = packetSNMPoid(packet,packetSize,oid);
+				Serial.print("oid.oid size= ");
+				Serial.println(strlen(oid.oid));
+				for(int i=0;i<strlen(oid.oid);i++)
+				{
+					Serial.print("oid.oid[");
+					Serial.print(i);
+					Serial.print("]=");
+					Serial.println(byte(oid.oid[i]),HEX);
+				}
+				Serial.print("oid.val= ");
+				Serial.println(oid.val);				
 			}
 		}
 		//udp.flush(); //finish reading this packet

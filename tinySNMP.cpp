@@ -1,27 +1,32 @@
 #include "tinySNMP.h"
 
-int packetSNMPcheck(char _packet[],int _packetSize) //,char _community[],struct MIB _mibSNMP[])
+void packetSNMPprint(char _packet[],int _packetSize)
 {
-/*	//print packet
-	Serial.print("_packetSize= ");
-	Serial.println(_packetSize);
-	Serial.print("_packet[0]= ");
-	Serial.println(_packet[0]);
-	Serial.print("_packet[1]= ");
-	Serial.println(_packet[1]);	
-	Serial.print("_packet[4]= ");
-	Serial.println(_packet[4]);		
+	//print packet
+	Serial.print("Packet len=");
+	Serial.print(_packetSize,DEC);
+	Serial.print(" | Sequense len=");
+	Serial.println(_packet[1],DEC);
+	Serial.print("Packet ID= ");
+	Serial.println(_packet[0],HEX);
 	
+	Serial.println("Packet = byte-int-char");
 	for(int n = 0;n < _packetSize;n++)
 	{
 		Serial.print("p[");
 		Serial.print(n); 
-		Serial.print("]= "); 
-		Serial.print(_packet[n],HEX);
-		Serial.print(" ");
-		Serial.println(_packet[n]);
-	}
-*/
+		Serial.print("]="); 
+		Serial.print(byte(_packet[n]),HEX);
+		Serial.print(" - ");
+		Serial.print(int(_packet[n]),DEC);
+		Serial.print(" - ");
+		Serial.println(char(_packet[n]));
+	}	
+}
+
+int packetSNMPcheck(char _packet[],int _packetSize) //check SNMP
+{
+
 	
 	// packet check to SNMP and size
 	if( (byte(_packet[0]) != 0x30 ) || ((_packetSize-2)!= int(_packet[1]) ) )
@@ -43,7 +48,7 @@ int packetSNMPcheck(char _packet[],int _packetSize) //,char _community[],struct 
 */	
 	if(int(_versionSNMP)>1) 
 	{
-		Serial.println("SNMP version invalid");
+		//Serial.println("SNMP version invalid");
 		return SNMP_ERR_GEN_ERROR;
 	}
 	return SNMP_ERR_NO_ERROR;
@@ -54,11 +59,11 @@ int packetSNMPcommunity(char _packet[],int _packetSize,char _community[],int _co
 	//community length
 	int _comLen = _packet[6];
 	//check community
-	Serial.print("_comLen= ");
+/*	Serial.print("_comLen= ");
 	Serial.print(_comLen);
 	Serial.print(" _communitySize=");
 	Serial.println(_communitySize);
-	
+*/	
 	if(_communitySize != _comLen)
 	{
 		return SNMP_ERR_NO_SUCH_NAME;
@@ -68,20 +73,19 @@ int packetSNMPcommunity(char _packet[],int _packetSize,char _community[],int _co
 		for (int i=0;i < _comLen;i++)
 		{
 			if(_community[i] != _packet[7+i]) return SNMP_ERR_NO_SUCH_NAME;
-			Serial.print("com= ");
+/*			Serial.print("com= ");
 			Serial.print(char(_community[i]));
 			Serial.print(" pkg= ");
 			Serial.println(char(_packet[7+i]));
-		}
+*/		}
 	}
 	return 0;
 }
 
-char *packetSNMPoid(char _packet[],int _packetSize, char _buf, int _bufSize)
+int packetSNMPoid(char _packet[],int _packetSize, struct OID _oid)
 {
 	//length
 	int _comLen = _packet[6];
-	
 	//check pdu
 	byte _pduType = _packet[6 + _comLen + 1];
 	int _pduLen = _packet[6 + _comLen + 2];
@@ -106,19 +110,22 @@ char *packetSNMPoid(char _packet[],int _packetSize, char _buf, int _bufSize)
 	//object id
 	byte _oidType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 5];
 	int _oidLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6];
-	char _oidSNMP[_oidLen + 1];
+	//read oid
 	if(_oidLen > 0)
 	{
+
 		for (int i=0;i < _oidLen;i++)
 		{
 			//TODO parse multibyte
-			_oidSNMP[i] = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 7 + i];
+			_oid.oid[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 7 + i]);
+			//Serial.println(byte(_oid.oid[i]),HEX);
 		}
+		//strcpy(_oidSNMP,_oid.oid);
 	}
-	return _oidSNMP;
+	return 0;
 }
 
-char *packetSNMPvalue(char _packet[],int _packetSize)
+int packetSNMPvalue(char _packet[],int _packetSize,struct OID _oid)
 {
 	//length
 	int _comLen = _packet[6];
@@ -126,16 +133,15 @@ char *packetSNMPvalue(char _packet[],int _packetSize)
 	int _errLen = _packet[6 + _comLen + 4 + _ridLen + 2];
 	int _eriLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2];
 	int _oidLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6];
-	
 	//value oid
 	byte _valueType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 1];
 	int _valueLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 2];
-	char _oidValue [_valueLen];
+	//read value
 	if(_valueType != 0x05 && _valueLen > 0) //NULL
 	{
 		for (int i=0;i < _valueLen;i++)
 		{
-			_oidValue[i] = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 3 + i];
+			_oid.val[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 3 + i]);
 		}
 	}
 }

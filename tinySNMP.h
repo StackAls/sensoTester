@@ -19,18 +19,27 @@
 #define SNMP_PDU_SET			0xA3
 #define SNMP_PDU_TRAP		0xA4
 
-struct MIB
+struct OID
 {
-	byte numMIB[11];
-	char setMIB[20];
+	char oid[20];
+	char val[20];
 };
 
-//check udp packet to buffer
+struct MIB
+{
+	char numMIB[16];
+	char setMIB[21];
+};
+
+//print packet
+void packetSNMPprint(char[],int);
+//check udp packet
 //buffer,size,community,mib
-int packetSNMPcheck(char[],int);//,char [],struct MIB[]);
+int packetSNMPcheck(char packet[],int sizepacket);
 //return community name
 int packetSNMPcommunity(char[],int,char[],int);
-
+//return oid & value
+int packetSNMPoid(char[],int,struct OID);
 
 
 #endif
