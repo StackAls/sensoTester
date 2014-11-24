@@ -211,17 +211,17 @@ void loop ()
 	//byte packet[SNMP_MAX_PACKET_LEN];
 	
 	int packetSize = udp.parsePacket();
-	struct OID oid;
-	if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
+	
+	//packet exist
+	//if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
+	if(packetSize > 0)
 	{
-/*	
-		Serial.print("Packet size = "); 
-		Serial.println(packetSize);
-*/
+		struct OID oid = {{0},{0}};
+		//UDP sender IP and port 
 		IPAddress remoteIP = udp.remoteIP();
 		int remotePort = udp.remotePort();
 /*
-		//print remote ip
+		//print remote ip and port
 		Serial.print("From ");
 		for (int i =0; i < 4; i++)
 		{
@@ -234,63 +234,59 @@ void loop ()
 		Serial.print(", port ");
 		Serial.println(_remotePort);
 */		
-		char packet[packetSize+1];
+		//read packet
+		byte packet[packetSize];
 		do //read
 		{
 			int len = udp.read(packet,packetSize); 
 		}
 		while (udp.available());
 		udp.flush(); //finish reading this packet
-
-/*		//print packet
-		for(int n = 0;n < packetSize;n++)
-		{
-			Serial.print("[");
-			Serial.print(n); 
-			Serial.print("]= "); 
-			Serial.print(packet[n],HEX);
-			Serial.print(" ");
-			Serial.println(packet[n]);
-		}
-		//---------	
+/*
 		Serial.print("cfg.communitySNMP = ");
 		Serial.println(cfg.communitySNMP);
 */		
-		int error = packetSNMPcheck(packet,packetSize); //,cfg.communitySNMP,mibSNMP);
-
-		Serial.print("error packetSNMPcheck = ");
-		Serial.println(error);
+		//print packet
+		//packetSNMPprint(packet,packetSize);
+		
+		//check packet for SNMP
+		int error = packetSNMPcheck(packet,packetSize); 
 
 		if(!error)
 		{
-			error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,sizeof(cfg.communitySNMP)-1);
-			
-			Serial.print("error packetSNMPcommunity= ");
-			Serial.println(error);
+			//error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,sizeof(cfg.communitySNMP)-1);
+			error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,strlen(cfg.communitySNMP));
+			//Serial.print("strlen(cfg.communitySNMP)=");
+			//Serial.println(strlen(cfg.communitySNMP));
 			
 			if(!error)
 			{
-				//Serial.println("Read OIDs");
-				packetSNMPprint(packet,packetSize);
+				//print packet
+				//packetSNMPprint(packet,packetSize);
 				//TODO read oid
-				error = packetSNMPoid(packet,packetSize,oid);
-				Serial.print("oid.oid size= ");
-				Serial.println(strlen(oid.oid));
-				for(int i=0;i<strlen(oid.oid);i++)
+				error = packetSNMPoid(packet,packetSize,oid.oid,SNMP_MAX_OID_SIZE);
+			//	Serial.print("oid.oid size= ");
+			//	Serial.println(strlen(oid.oid));
+			//	for(int i=0;i<strlen(oid.oid);i++)
+			
+				for(int i=0;i<error;i++)
 				{
 					Serial.print("oid.oid[");
 					Serial.print(i);
 					Serial.print("]=");
 					Serial.println(byte(oid.oid[i]),HEX);
 				}
-				Serial.print("oid.val= ");
-				Serial.println(oid.val);				
+				
 			}
 		}
-		//udp.flush(); //finish reading this packet
+		
+		//TODO error
+		//Serial.print("error = ");
+		//Serial.println(error);
+
+
+		
 	}
-	
-	//udp.stop(); //stop udp server
 #endif
 	
 	//delay(5000);
@@ -319,7 +315,8 @@ void loop ()
 	{
 		counter = 0;
 		udp.stop(); //stop udp server
-		Ethernet.maintain(); //reinit eth
+		Ethernet.maintain(); //reinit eth DHCP
+		delay(3000);
 		udp.begin(161);
 		Serial.print("Maintain sec ");
 		Serial.println(millis() / 1000);

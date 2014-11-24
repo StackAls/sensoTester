@@ -14,32 +14,39 @@
 #define SNMP_ERR_GEN_ERROR		5
 
 #define SNMP_PDU_GET			0xA0
-#define SNMP_PDU_GET_NEXT	0xA1
-#define SNMP_PDU_RESPONSE	0xA2
+#define SNMP_PDU_GET_NEXT		0xA1
+#define SNMP_PDU_RESPONSE		0xA2
 #define SNMP_PDU_SET			0xA3
-#define SNMP_PDU_TRAP		0xA4
+#define SNMP_PDU_TRAP			0xA4
+
+#define SNMP_MAX_OID_SIZE		20
+#define SNMP_MAX_OID_VAL_SIZE	20
+
+#define SNMP_MAX_MIB_SIZE		SNMP_MAX_OID_SIZE
+#define SNMP_MAX_MIB_VAL_SIZE	SNMP_MAX_OID_VAL_SIZE+1
 
 struct OID
 {
-	char oid[20];
-	char val[20];
+	byte oid[SNMP_MAX_OID_SIZE];
+	byte val[SNMP_MAX_OID_VAL_SIZE];
 };
 
 struct MIB
 {
-	char numMIB[16];
-	char setMIB[21];
+	byte numMIB[SNMP_MAX_MIB_SIZE];
+	char setMIB[SNMP_MAX_MIB_VAL_SIZE];
 };
 
 //print packet
-void packetSNMPprint(char[],int);
+void packetSNMPprint(byte packet[],int packet_size);
 //check udp packet
 //buffer,size,community,mib
-int packetSNMPcheck(char packet[],int sizepacket);
+int packetSNMPcheck(byte packet[],int packet_size);
 //return community name
-int packetSNMPcommunity(char[],int,char[],int);
+int packetSNMPcommunity(byte packet[],int packet_size,char community[],int community_size);
 //return oid & value
-int packetSNMPoid(char[],int,struct OID);
-
+//int packetSNMPoid(char[],int,struct OID);
+//oid, val
+int packetSNMPoid(byte packet[],int packet_size,byte oid[],int oid_size);
 
 #endif

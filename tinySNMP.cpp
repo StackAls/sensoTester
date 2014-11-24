@@ -1,6 +1,6 @@
 #include "tinySNMP.h"
 
-void packetSNMPprint(char _packet[],int _packetSize)
+void packetSNMPprint(byte _packet[],int _packetSize)
 {
 	//print packet
 	Serial.print("Packet len=");
@@ -10,7 +10,7 @@ void packetSNMPprint(char _packet[],int _packetSize)
 	Serial.print("Packet ID= ");
 	Serial.println(_packet[0],HEX);
 	
-	Serial.println("Packet = byte-int-char");
+	Serial.println("Packet = byte - int - char");
 	for(int n = 0;n < _packetSize;n++)
 	{
 		Serial.print("p[");
@@ -24,10 +24,14 @@ void packetSNMPprint(char _packet[],int _packetSize)
 	}	
 }
 
-int packetSNMPcheck(char _packet[],int _packetSize) //check SNMP
+int packetSNMPcheck(byte _packet[],int _packetSize) //check SNMP
 {
-
-	
+	// packet check max size
+		if(_packetSize > SNMP_MAX_PACKET_LEN)
+	{
+		//Serial.println("SNMP big size");
+		return SNMP_ERR_TOO_BIG;
+	}
 	// packet check to SNMP and size
 	if( (byte(_packet[0]) != 0x30 ) || ((_packetSize-2)!= int(_packet[1]) ) )
 	{
@@ -35,7 +39,7 @@ int packetSNMPcheck(char _packet[],int _packetSize) //check SNMP
 		return SNMP_ERR_GEN_ERROR;
 	}
 	//sequence length
-	int _seqLen = _packet[1];
+	//int _seqLen = _packet[1];
 /*	
 	Serial.print("_seqLen= ");
 	Serial.println(_seqLen);
@@ -54,7 +58,7 @@ int packetSNMPcheck(char _packet[],int _packetSize) //check SNMP
 	return SNMP_ERR_NO_ERROR;
 }
 
-int packetSNMPcommunity(char _packet[],int _packetSize,char _community[],int _communitySize)
+int packetSNMPcommunity(byte _packet[],int _packetSize,char _community[],int _communitySize)
 {	
 	//community length
 	int _comLen = _packet[6];
@@ -79,10 +83,11 @@ int packetSNMPcommunity(char _packet[],int _packetSize,char _community[],int _co
 			Serial.println(char(_packet[7+i]));
 */		}
 	}
-	return 0;
+	return SNMP_ERR_NO_ERROR;
 }
 
-int packetSNMPoid(char _packet[],int _packetSize, struct OID _oid)
+//int packetSNMPoid(char _packet[],int _packetSize, struct OID _oid)
+int packetSNMPoid(byte _packet[],int _packetSize, byte _oid[], int _oidSize)
 {
 	//length
 	int _comLen = _packet[6];
@@ -110,22 +115,36 @@ int packetSNMPoid(char _packet[],int _packetSize, struct OID _oid)
 	//object id
 	byte _oidType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 5];
 	int _oidLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6];
+
+/*
+	Serial.print("_oidLen=");
+	Serial.print(int(_oidLen),DEC);
+	Serial.print(" _oIDLen(-1)=");
+	Serial.println(int(_oidSize),DEC);
+*/
 	//read oid
-	if(_oidLen > 0)
+	if(_oidLen > 0 && _oidLen < SNMP_MAX_OID_SIZE)
 	{
 
 		for (int i=0;i < _oidLen;i++)
 		{
 			//TODO parse multibyte
-			_oid.oid[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 7 + i]);
+			//_oid.oid[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 7 + i]);
+			_oid[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 7 + i]);
 			//Serial.println(byte(_oid.oid[i]),HEX);
 		}
 		//strcpy(_oidSNMP,_oid.oid);
+		return _oidLen;
 	}
-	return 0;
+	else
+	{
+		return 0;
+	}
+	
 }
 
-int packetSNMPvalue(char _packet[],int _packetSize,struct OID _oid)
+//int packetSNMPvalue(char _packet[],int _packetSize,struct OID _oid)
+int packetSNMPvalue(byte _packet[],int _packetSize,char value[],int valueSize)
 {
 	//length
 	int _comLen = _packet[6];
@@ -141,7 +160,8 @@ int packetSNMPvalue(char _packet[],int _packetSize,struct OID _oid)
 	{
 		for (int i=0;i < _valueLen;i++)
 		{
-			_oid.val[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 3 + i]);
+			//_oid.val[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 3 + i]);
+			value[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 3 + i]);
 		}
 	}
 }
