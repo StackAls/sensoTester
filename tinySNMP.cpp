@@ -124,7 +124,7 @@ int packetSNMPoid(byte _packet[],int _packetSize, struct OID *_oid)
 		}
 
 		//read value
-		if(_valueType != 0x05 && _valueLen > 0) //NULL
+		if(_valueType != SNMP_TYPE_NULL && _valueLen > 0) //NULL
 		{
 			for (int i=0;i <= _valueLen;i++)
 			{
@@ -138,6 +138,68 @@ int packetSNMPoid(byte _packet[],int _packetSize, struct OID *_oid)
 		return 1;
 	}
 
+}
+
+unsigned int checkOID( struct OID *_oid)
+{
+	//{0x2B,0x6,0x1,0x2,0x1,0x1,x(1-6),0x0}
+	if(_oid.SNMPoid[0] == 0x2B &&
+		_oid.SNMPoid[1] == 0x6 &&
+		_oid.SNMPoid[2] == 0x1 &&
+		_oid.SNMPoid[3] == 0x2 &&
+		_oid.SNMPoid[4] == 0x1 &&
+		_oid.SNMPoid[5] == 0x1 &&
+		_oid.SNMPoid[7] == 0x0)
+	{
+		for(unsigned int i=0;i<=6;i++)
+		{
+			if (i == unsigned int (_oid.SNMPoid[6]) && unsigned int (_oid.SNMPoid[6]) !=0)
+				return i;
+			else return 0;
+		}
+	}
+	//analog sensors (.1.3.6.1.4.1.36582.1.x91-16).0)
+	//{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x1,0x0}
+	if(_oid.SNMPoid[0] == 0x2B &&
+		_oid.SNMPoid[1] == 0x6 &&
+		_oid.SNMPoid[2] == 0x1 &&
+		_oid.SNMPoid[3] == 0x4 &&
+		_oid.SNMPoid[4] == 0x1 &&
+		_oid.SNMPoid[5] == 0x82 &&
+		_oid.SNMPoid[6] == 0x9D &&
+		_oid.SNMPoid[7] == 0x66 &&
+		_oid.SNMPoid[8] == 0x1 &&
+		_oid.SNMPoid[10] == 0x0)
+	{
+		for(unsigned int i=0;i<=16;i++)
+		{
+			if (i == unsigned int (_oid.SNMPoid[9]) && unsigned int (_oid.SNMPoid[9]) !=0)
+				return i+16;
+			else return 0;
+		}
+	}
+	//digital sensors (.1.3.6.1.4.1.36582.2.y(1-16).0)
+	//{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x1,0x0}
+	if(_oid.SNMPoid[0] == 0x2B &&
+		_oid.SNMPoid[1] == 0x6 &&
+		_oid.SNMPoid[2] == 0x1 &&
+		_oid.SNMPoid[3] == 0x4 &&
+		_oid.SNMPoid[4] == 0x1 &&
+		_oid.SNMPoid[5] == 0x82 &&
+		_oid.SNMPoid[6] == 0x9D &&
+		_oid.SNMPoid[7] == 0x66 &&
+		_oid.SNMPoid[8] == 0x2 &&
+		_oid.SNMPoid[10] == 0x0)
+	{
+		for(unsigned int i=0;i<=16;i++)
+		{
+			if (i == unsigned int (_oid.SNMPoid[9])  && unsigned int (_oid.SNMPoid[9]) !=0)
+				return i+64;
+			else return 0;
+		}
+	}
+	
+	return 0;
 }
 
 int packetSNMPsend()

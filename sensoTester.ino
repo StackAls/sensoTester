@@ -273,6 +273,46 @@ void loop ()
 				packetSNMPprint(packet,packetSize);
 				//TODO read oid
 				error = packetSNMPoid(packet,packetSize,&oid);
+				if(!error)
+				{
+					switch(unsigned int checkOID( struct OID *oid))
+					{
+						case 1:
+							
+							break;
+						case 2:
+							
+							break;
+						case 3:
+							
+							break;
+						case 5:
+							
+							break;
+						case 6:
+							
+							break;
+						case 17:
+							
+							break;
+						case 18:
+							
+							break;
+						case 19:
+							
+							break;
+						case 20:
+							
+							break;
+						case 4:
+							
+							break;
+						
+						default:
+							
+							break;
+					}
+				}
 				Serial.print("error = ");
 				Serial.println(error);
 			//	for(int i=0;i<strlen(oid.oid);i++)
@@ -296,6 +336,7 @@ void loop ()
 				Serial.println(oid.SNMPerrID,HEX);
 				Serial.print("int SNMPoidLen =");
 				Serial.println(oid.SNMPoidLen,DEC);
+				
 				for(int i=0;i<oid.SNMPoidLen;i++)
 				{
 					Serial.print("SNMPoid[");
@@ -303,6 +344,8 @@ void loop ()
 					Serial.print("]=");
 					Serial.println(byte(oid.SNMPoid[i]),HEX);
 				}
+				
+
 				
 				Serial.print("byte SNMPvalType =");
 				Serial.println(oid.SNMPvalType,HEX);

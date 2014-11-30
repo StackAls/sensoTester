@@ -14,6 +14,13 @@
 #define SNMP_ERR_READ_ONLY		4
 #define SNMP_ERR_GEN_ERROR		5
 
+#define	SNMP_TYPE_BOOL			0x01
+#define	SNMP_TYPE_INT			0x02
+#define	SNMP_TYPE_BITS			0x03
+#define	SNMP_TYPE_OCTETS		0x04
+#define	SNMP_TYPE_NULL			0x05
+#define	SNMP_TYPE_OID			0x06
+
 #define SNMP_PDU_GET			0xA0
 #define SNMP_PDU_GET_NEXT		0xA1
 #define SNMP_PDU_RESPONSE		0xA2
@@ -62,7 +69,8 @@ int packetSNMPcheck(byte packet[],int packet_size);
 int packetSNMPcommunity(byte packet[],int packet_size,char community[],int community_size);
 //return oid & value
 int packetSNMPoid(byte packet[],int packet_size, struct OID *oid);
-//oid, val
+//check oid
+unsigned int checkOID( struct OID *oid);
 //int packetSNMPoid(byte packet[],int packet_size,byte oid[],int oid_size);
 
 #endif
