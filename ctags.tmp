@@ -10,25 +10,35 @@ Bt	thermistor.h	15;"	macro
 Ct	thermistor.h	16;"	macro
 HEX	tinySNMP.cpp	19;"	local
 LCDB_H	lcdb.h	2;"	macro
-MIB	tinySNMP.h	34;"	struct
-OID	tinySNMP.h	28;"	struct
+OID	tinySNMP.h	31;"	struct
 Rb	thermistor.h	5;"	macro
-SNMP_ERR_BAD_VALUE	tinySNMP.h	12;"	macro
-SNMP_ERR_GEN_ERROR	tinySNMP.h	14;"	macro
-SNMP_ERR_NO_ERROR	tinySNMP.h	9;"	macro
-SNMP_ERR_NO_SUCH_NAME	tinySNMP.h	11;"	macro
-SNMP_ERR_READ_ONLY	tinySNMP.h	13;"	macro
-SNMP_ERR_TOO_BIG	tinySNMP.h	10;"	macro
-SNMP_MAX_MIB_SIZE	tinySNMP.h	25;"	macro
-SNMP_MAX_MIB_VAL_SIZE	tinySNMP.h	26;"	macro
-SNMP_MAX_OID_SIZE	tinySNMP.h	22;"	macro
-SNMP_MAX_OID_VAL_SIZE	tinySNMP.h	23;"	macro
+SNMP_COMM_MAX_SIZE	tinySNMP.h	23;"	macro
+SNMP_ERR_BAD_VALUE	tinySNMP.h	13;"	macro
+SNMP_ERR_GEN_ERROR	tinySNMP.h	15;"	macro
+SNMP_ERR_NO_ERROR	tinySNMP.h	10;"	macro
+SNMP_ERR_NO_SUCH_NAME	tinySNMP.h	12;"	macro
+SNMP_ERR_READ_ONLY	tinySNMP.h	14;"	macro
+SNMP_ERR_TOO_BIG	tinySNMP.h	11;"	macro
+SNMP_MAX_MIB_SIZE	tinySNMP.h	28;"	macro
+SNMP_MAX_MIB_VAL_SIZE	tinySNMP.h	29;"	macro
+SNMP_MAX_OID_SIZE	tinySNMP.h	25;"	macro
+SNMP_MAX_OID_VAL_SIZE	tinySNMP.h	26;"	macro
 SNMP_MAX_PACKET_LEN	tinySNMP.h	7;"	macro
-SNMP_PDU_GET	tinySNMP.h	16;"	macro
-SNMP_PDU_GET_NEXT	tinySNMP.h	17;"	macro
-SNMP_PDU_RESPONSE	tinySNMP.h	18;"	macro
-SNMP_PDU_SET	tinySNMP.h	19;"	macro
-SNMP_PDU_TRAP	tinySNMP.h	20;"	macro
+SNMP_PDU_GET	tinySNMP.h	17;"	macro
+SNMP_PDU_GET_NEXT	tinySNMP.h	18;"	macro
+SNMP_PDU_RESPONSE	tinySNMP.h	19;"	macro
+SNMP_PDU_SET	tinySNMP.h	20;"	macro
+SNMP_PDU_TRAP	tinySNMP.h	21;"	macro
+SNMP_VERSION	tinySNMP.h	8;"	macro
+SNMPerr	tinySNMP.h	39;"	member	struct:OID
+SNMPerrID	tinySNMP.h	40;"	member	struct:OID
+SNMPoid	tinySNMP.h	42;"	member	struct:OID
+SNMPoidLen	tinySNMP.h	41;"	member	struct:OID
+SNMPpduType	tinySNMP.h	37;"	member	struct:OID
+SNMPreqID	tinySNMP.h	38;"	member	struct:OID
+SNMPval	tinySNMP.h	45;"	member	struct:OID
+SNMPvalLen	tinySNMP.h	43;"	member	struct:OID
+SNMPvalType	tinySNMP.h	44;"	member	struct:OID
 TC	thermistor.h	9;"	macro
 TF	thermistor.h	10;"	macro
 THERMISTOR_H	thermistor.h	2;"	macro
@@ -37,33 +47,27 @@ TK	thermistor.h	8;"	macro
 Temp	thermistor.cpp	6;"	local
 Thermistor	thermistor.cpp	4;"	function
 Thermistor	thermistor.h	18;"	prototype
-_comLen	tinySNMP.cpp	150;"	local
-_comLen	tinySNMP.cpp	64;"	local
-_comLen	tinySNMP.cpp	93;"	local
-_eriLen	tinySNMP.cpp	107;"	local
-_eriLen	tinySNMP.cpp	153;"	local
-_eriType	tinySNMP.cpp	106;"	local
-_eriValue	tinySNMP.cpp	108;"	local
-_errLen	tinySNMP.cpp	103;"	local
-_errLen	tinySNMP.cpp	152;"	local
-_errType	tinySNMP.cpp	102;"	local
-_errValue	tinySNMP.cpp	104;"	local
-_oidLen	tinySNMP.cpp	117;"	local
-_oidLen	tinySNMP.cpp	154;"	local
-_oidType	tinySNMP.cpp	116;"	local
-_pduLen	tinySNMP.cpp	96;"	local
-_pduType	tinySNMP.cpp	95;"	local
-_ridLen	tinySNMP.cpp	151;"	local
-_ridLen	tinySNMP.cpp	99;"	local
-_ridType	tinySNMP.cpp	98;"	local
-_ridValue	tinySNMP.cpp	100;"	local
-_valueLen	tinySNMP.cpp	157;"	local
-_valueType	tinySNMP.cpp	156;"	local
-_vbiLen	tinySNMP.cpp	114;"	local
-_vbiType	tinySNMP.cpp	113;"	local
-_vblLen	tinySNMP.cpp	111;"	local
-_vblType	tinySNMP.cpp	110;"	local
-_versionSNMP	tinySNMP.cpp	48;"	local
+_comLen	tinySNMP.cpp	56;"	local
+_comLen	tinySNMP.cpp	79;"	local
+_eriLen	tinySNMP.cpp	93;"	local
+_eriType	tinySNMP.cpp	92;"	local
+_eriValue	tinySNMP.cpp	94;"	local
+_errLen	tinySNMP.cpp	89;"	local
+_errType	tinySNMP.cpp	88;"	local
+_errValue	tinySNMP.cpp	90;"	local
+_oidLen	tinySNMP.cpp	103;"	local
+_oidType	tinySNMP.cpp	102;"	local
+_pduLen	tinySNMP.cpp	82;"	local
+_pduType	tinySNMP.cpp	81;"	local
+_ridLen	tinySNMP.cpp	85;"	local
+_ridType	tinySNMP.cpp	84;"	local
+_ridValue	tinySNMP.cpp	86;"	local
+_valueLen	tinySNMP.cpp	106;"	local
+_valueType	tinySNMP.cpp	105;"	local
+_vbiLen	tinySNMP.cpp	100;"	local
+_vbiType	tinySNMP.cpp	99;"	local
+_vblLen	tinySNMP.cpp	97;"	local
+_vblType	tinySNMP.cpp	96;"	local
 adc_key_in	lcdb.cpp	6;"	variable
 btnDOWN	lcdb.h	5;"	macro
 btnLEFT	lcdb.h	6;"	macro
@@ -73,17 +77,15 @@ btnSELECT	lcdb.h	8;"	macro
 btnUP	lcdb.h	4;"	macro
 byte	tinySNMP.cpp	19;"	prototype	file:
 lcd_key	lcdb.cpp	5;"	variable
-numMIB	tinySNMP.h	36;"	member	struct:MIB
-oid	tinySNMP.h	30;"	member	struct:OID
 packetSNMPcheck	tinySNMP.cpp	27;"	function
-packetSNMPcheck	tinySNMP.h	44;"	prototype
-packetSNMPcommunity	tinySNMP.cpp	61;"	function
-packetSNMPcommunity	tinySNMP.h	46;"	prototype
-packetSNMPoid	tinySNMP.cpp	90;"	function
-packetSNMPoid	tinySNMP.h	50;"	prototype
+packetSNMPcheck	tinySNMP.h	60;"	prototype
+packetSNMPcommunity	tinySNMP.cpp	53;"	function
+packetSNMPcommunity	tinySNMP.h	62;"	prototype
+packetSNMPoid	tinySNMP.cpp	76;"	function
+packetSNMPoid	tinySNMP.h	64;"	prototype
 packetSNMPprint	tinySNMP.cpp	3;"	function
-packetSNMPprint	tinySNMP.h	41;"	prototype
-packetSNMPvalue	tinySNMP.cpp	147;"	function
+packetSNMPprint	tinySNMP.h	57;"	prototype
+packetSNMPsend	tinySNMP.cpp	143;"	function
 print	tinySNMP.cpp	17;"	prototype	file:
 print	tinySNMP.cpp	21;"	prototype	file:
 print	tinySNMP.cpp	7;"	prototype	file:
@@ -92,5 +94,3 @@ println	tinySNMP.cpp	23;"	prototype	file:
 println	tinySNMP.cpp	9;"	prototype	file:
 read_LCD_buttons	lcdb.cpp	8;"	function
 read_LCD_buttons	lcdb.h	11;"	prototype
-setMIB	tinySNMP.h	37;"	member	struct:MIB
-val	tinySNMP.h	31;"	member	struct:OID

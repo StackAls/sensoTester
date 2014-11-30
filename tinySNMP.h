@@ -4,7 +4,8 @@
 #include "UIPEthernet.h"
 #include "UIPUdp.h"
 
-#define SNMP_MAX_PACKET_LEN 127
+#define SNMP_MAX_PACKET_LEN 	127
+#define SNMP_VERSION			0	//1
 
 #define SNMP_ERR_NO_ERROR 		0
 #define SNMP_ERR_TOO_BIG 		1
@@ -19,7 +20,9 @@
 #define SNMP_PDU_SET			0xA3
 #define SNMP_PDU_TRAP			0xA4
 
-#define SNMP_MAX_OID_SIZE		20
+#define SNMP_COMM_MAX_SIZE		7
+
+#define SNMP_MAX_OID_SIZE		16
 #define SNMP_MAX_OID_VAL_SIZE	20
 
 #define SNMP_MAX_MIB_SIZE		SNMP_MAX_OID_SIZE
@@ -27,15 +30,28 @@
 
 struct OID
 {
-	byte oid[SNMP_MAX_OID_SIZE];
-	byte val[SNMP_MAX_OID_VAL_SIZE];
+	//unsigned int SNMPsize;
+	//unsigned int SNMPver;
+	//char SNMPcomm[SNMP_COMM_MAX_SIZE];
+	//unsigned int commLen;
+	byte SNMPpduType;
+	int SNMPreqID;
+	byte SNMPerr;
+	byte SNMPerrID;
+	unsigned int SNMPoidLen;
+	byte SNMPoid[SNMP_MAX_OID_SIZE];
+	unsigned int SNMPvalLen;
+	byte SNMPvalType;
+	byte SNMPval[SNMP_MAX_OID_VAL_SIZE];
 };
 
+/*
 struct MIB
 {
-	byte numMIB[SNMP_MAX_MIB_SIZE];
-	char setMIB[SNMP_MAX_MIB_VAL_SIZE];
+	char numMIB[SNMP_MAX_MIB_SIZE];
+	char valMIB[SNMP_MAX_MIB_VAL_SIZE];
 };
+*/
 
 //print packet
 void packetSNMPprint(byte packet[],int packet_size);
@@ -45,8 +61,8 @@ int packetSNMPcheck(byte packet[],int packet_size);
 //return community name
 int packetSNMPcommunity(byte packet[],int packet_size,char community[],int community_size);
 //return oid & value
-//int packetSNMPoid(char[],int,struct OID);
+int packetSNMPoid(byte packet[],int packet_size, struct OID *oid);
 //oid, val
-int packetSNMPoid(byte packet[],int packet_size,byte oid[],int oid_size);
+//int packetSNMPoid(byte packet[],int packet_size,byte oid[],int oid_size);
 
 #endif

@@ -58,7 +58,7 @@ struct cfgStruct
 	//long d;
 	//float e[6];
 	//SNMP settings
-	char communitySNMP[7];
+	char communitySNMP[SNMP_COMM_MAX_SIZE];
 	//byte ipTrapServer[5];
 	//int ipTrapPort;
 } cfg =
@@ -73,43 +73,8 @@ struct cfgStruct
 		"public"
 	};
 
-struct MIB mibSNMP[] =
-	{	
-		// RFC1213-MIB OIDs
-		// .iso (.1)
-		// .iso.org (.1.3)
-		// .iso.org.dod (.1.3.6)
-		// .iso.org.dod.internet (.1.3.6.1)
-		// .iso.org.dod.internet.mgmt (.1.3.6.1.2)
-		// .iso.org.dod.internet.mgmt.mib-2 (.1.3.6.1.2.1)
-		// .iso.org.dod.internet.mgmt.mib-2.system (.1.3.6.1.2.1.1)
-		// .iso.org.dod.internet.mgmt.mib-2.system.sysDescr (.1.3.6.1.2.1.1.1)
-		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x1,0x0},{"Arduino tinySNMP"}},
-		// .iso.org.dod.internet.mgmt.mib-2.system.sysObjectID (.1.3.6.1.2.1.1.2)
-		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x2,0x0},{"1.3.6.1.3.36582.0"}},
-		// .iso.org.dod.internet.mgmt.mib-2.system.sysUpTime (.1.3.6.1.2.1.1.3)
-		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x3,0x0},{"0"}},
-		// .iso.org.dod.internet.mgmt.mib-2.system.sysContact (.1.3.6.1.2.1.1.4)
-		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x4,0x0},{"Alexander Bugrov"}},
-		// .iso.org.dod.internet.mgmt.mib-2.system.sysName (.1.3.6.1.2.1.1.5)
-		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x5,0x0},{"tinySNMP"}},
-		// .iso.org.dod.internet.mgmt.mib-2.system.sysLocation (.1.3.6.1.2.1.1.6)
-		{{0x2B,0x6,0x1,0x2,0x1,0x1,0x6,0x0},{"Russia NNov"}},
-		// Arduino defined OIDs
-		// .iso.org.dod.internet.private (.1.3.6.1.4)
-		// .iso.org.dod.internet.private.enterprises (.1.3.6.1.4.1)
-		// .iso.org.dod.internet.private.enterprises.arduino (.1.3.6.1.4.1.36582)
-		//
-		//analog sensors (.1.3.6.1.4.1.36582.1.x.0)
-		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x1,0x0},{"Sensor 1"}},
-		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x2,0x0},{"Sensor 2"}},
-		//...
-		//digital sensors (.1.3.6.1.4.1.36582.2.y.0)
-		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x1,0x0},{"Sensor 1"}},
-		{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x2,0x0},{"Sensor 2"}}
-		//...
-		
-	};
+	
+
 /*
 static byte mymac[] = { 0x00,0x99,0x99,0x3D,0x30,0x42 };  // ethernet interface mac address
 IPAddress myip(10,62,64,249);  // default ip address
@@ -117,6 +82,48 @@ IPAddress subnet(255,255,255,0);  // default subnet
 IPAddress gateway(10,62,64,8);   // default gateway
 IPAddress dnsServer(10,62,0,235);  // default dns
 */
+
+/*
+struct MIB mibSNMP[] =
+{	
+	// RFC1213-MIB OIDs
+	// .iso (.1)
+	// .iso.org (.1.3)
+	// .iso.org.dod (.1.3.6)
+	// .iso.org.dod.internet (.1.3.6.1)
+	// .iso.org.dod.internet.mgmt (.1.3.6.1.2)
+	// .iso.org.dod.internet.mgmt.mib-2 (.1.3.6.1.2.1)
+	// .iso.org.dod.internet.mgmt.mib-2.system (.1.3.6.1.2.1.1)
+	// .iso.org.dod.internet.mgmt.mib-2.system.sysDescr (.1.3.6.1.2.1.1.1)
+	{{0x2B,0x6,0x1,0x2,0x1,0x1,0x1,0x0},"Arduino tinySNMP"},
+	// .iso.org.dod.internet.mgmt.mib-2.system.sysObjectID (.1.3.6.1.2.1.1.2)
+	{{0x2B,0x6,0x1,0x2,0x1,0x1,0x2,0x0},"1.3.6.1.3.36582.0"},
+	// .iso.org.dod.internet.mgmt.mib-2.system.sysUpTime (.1.3.6.1.2.1.1.3)
+	{{0x2B,0x6,0x1,0x2,0x1,0x1,0x3,0x0},"0"},
+	// .iso.org.dod.internet.mgmt.mib-2.system.sysContact (.1.3.6.1.2.1.1.4)
+	{{0x2B,0x6,0x1,0x2,0x1,0x1,0x4,0x0},"Alexander Bugrov"},
+	// .iso.org.dod.internet.mgmt.mib-2.system.sysName (.1.3.6.1.2.1.1.5)
+	{{0x2B,0x6,0x1,0x2,0x1,0x1,0x5,0x0},"tinySNMP"},
+	// .iso.org.dod.internet.mgmt.mib-2.system.sysLocation (.1.3.6.1.2.1.1.6)
+	{{0x2B,0x6,0x1,0x2,0x1,0x1,0x6,0x0},"Russia NNov"},
+	// Arduino defined OIDs
+	// .iso.org.dod.internet.private (.1.3.6.1.4)
+	// .iso.org.dod.internet.private.enterprises (.1.3.6.1.4.1)
+	// .iso.org.dod.internet.private.enterprises.arduino (.1.3.6.1.4.1.36582)
+	//
+	//analog sensors (.1.3.6.1.4.1.36582.1.x.0)
+	{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x1,0x0},"ASensor 1"},
+	{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x2,0x0},"ASensor 2"},
+	//...
+	//digital sensors (.1.3.6.1.4.1.36582.2.y.0)
+	{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x1,0x0},"DSensor 1"},
+	{{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x2,0x0},"DSensor 2"}
+	//...
+	
+};
+*/
+
+
 //-------------SETUP------------------
 void setup ()
 {
@@ -161,7 +168,7 @@ void setup ()
 #endif	
 
 	//start udp server
-	int success = udp.begin(161);
+	//int success = udp.begin(161);
 	//Serial.print("Initialize UDP: ");
 	//Serial.println(success ? "success" : "failed");
 	
@@ -170,6 +177,7 @@ void setup ()
 //------------------------------------------------------------
 void loop ()
 {
+	int error = udp.begin(161);
 	//read sensors
 	//read analog
 	for (int analogChannel = 1; analogChannel < 16; analogChannel++) 
@@ -213,27 +221,27 @@ void loop ()
 	int packetSize = udp.parsePacket();
 	
 	//packet exist
-	//if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
-	if(packetSize > 0)
+	if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
+	//if(packetSize > 0)
 	{
-		struct OID oid = {{0},{0}};
+		struct OID oid = {0,0,0,0,0,0,0,0,0};
 		//UDP sender IP and port 
 		IPAddress remoteIP = udp.remoteIP();
-		int remotePort = udp.remotePort();
-/*
+		unsigned int remotePort = udp.remotePort();
+
 		//print remote ip and port
 		Serial.print("From ");
 		for (int i =0; i < 4; i++)
 		{
-		  Serial.print(_remoteIP[i], DEC);
+		  Serial.print(remoteIP[i], DEC);
 		  if (i < 3)
 		  {
 			Serial.print(".");
 		  }
 		}
 		Serial.print(", port ");
-		Serial.println(_remotePort);
-*/		
+		Serial.println(remotePort);
+		
 		//read packet
 		byte packet[packetSize];
 		do //read
@@ -250,7 +258,7 @@ void loop ()
 		//packetSNMPprint(packet,packetSize);
 		
 		//check packet for SNMP
-		int error = packetSNMPcheck(packet,packetSize); 
+		error = packetSNMPcheck(packet,packetSize); 
 
 		if(!error)
 		{
@@ -262,13 +270,13 @@ void loop ()
 			if(!error)
 			{
 				//print packet
-				//packetSNMPprint(packet,packetSize);
+				packetSNMPprint(packet,packetSize);
 				//TODO read oid
-				error = packetSNMPoid(packet,packetSize,oid.oid,SNMP_MAX_OID_SIZE);
-			//	Serial.print("oid.oid size= ");
-			//	Serial.println(strlen(oid.oid));
+				error = packetSNMPoid(packet,packetSize,&oid);
+				Serial.print("error = ");
+				Serial.println(error);
 			//	for(int i=0;i<strlen(oid.oid);i++)
-			
+			/*
 				for(int i=0;i<error;i++)
 				{
 					Serial.print("oid.oid[");
@@ -276,6 +284,28 @@ void loop ()
 					Serial.print("]=");
 					Serial.println(byte(oid.oid[i]),HEX);
 				}
+			*/	
+				
+				Serial.print("byte SNMPpduType =");
+				Serial.println(oid.SNMPpduType,HEX);
+				Serial.print("int SNMPreqID =");
+				Serial.println(oid.SNMPreqID,DEC);
+				Serial.print("byte SNMPerr=");
+				Serial.println(oid.SNMPerr,HEX);
+				Serial.print("byte SNMPerrID =");
+				Serial.println(oid.SNMPerrID,HEX);
+				Serial.print("int SNMPoidLen =");
+				Serial.println(oid.SNMPoidLen,DEC);
+				for(int i=0;i<oid.SNMPoidLen;i++)
+				{
+					Serial.print("SNMPoid[");
+					Serial.print(i);
+					Serial.print("]=");
+					Serial.println(byte(oid.SNMPoid[i]),HEX);
+				}
+				
+				Serial.print("byte SNMPvalType =");
+				Serial.println(oid.SNMPvalType,HEX);
 				
 			}
 		}
@@ -283,9 +313,18 @@ void loop ()
 		//TODO error
 		//Serial.print("error = ");
 		//Serial.println(error);
-
-
-		
+/*		for(int i=0;i<10;i++)
+		{
+			Serial.print("size numMIB[");
+			Serial.print(i);
+			Serial.print("]=");
+			Serial.print(strlen(mibSNMP[i].numMIB));
+			Serial.print(" valMIB[");
+			Serial.print(i);
+			Serial.print("]=");
+			Serial.println(mibSNMP[i].valMIB);			
+		}
+*/
 	}
 #endif
 	
@@ -307,6 +346,7 @@ void loop ()
 	//Serial.print("sec ");
 	//Serial.println(millis() / 1000);
 	#endif
+	
 	if(counter < 500) 
 	{
 		counter++;
@@ -314,11 +354,15 @@ void loop ()
 	else
 	{
 		counter = 0;
-		udp.stop(); //stop udp server
+		//udp.stop(); //stop udp server
 		Ethernet.maintain(); //reinit eth DHCP
-		delay(3000);
-		udp.begin(161);
+		delay(1000);
+		//udp.begin(161);
 		Serial.print("Maintain sec ");
 		Serial.println(millis() / 1000);
+		Serial.println("==================");
 	}
+	udp.stop(); //stop udp server
+	//udp.begin(161);
+	//delay(500);
 }
