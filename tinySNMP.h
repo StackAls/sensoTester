@@ -5,7 +5,7 @@
 #include "UIPUdp.h"
 
 #define SNMP_MAX_PACKET_LEN 	127
-#define SNMP_VERSION			0	//1
+#define SNMP_VERSION			1	//2c
 
 #define SNMP_ERR_NO_ERROR 		0
 #define SNMP_ERR_TOO_BIG 		1

@@ -1,5 +1,7 @@
 #include "tinySNMP.h"
 
+#define DEBUG
+
 void packetSNMPprint(byte _packet[],int _packetSize)
 {
 	//print packet
@@ -29,24 +31,32 @@ int packetSNMPcheck(byte _packet[],int _packetSize) //check SNMP
 	//packet check max size
 	if(_packetSize > SNMP_MAX_PACKET_LEN)
 	{
-		//Serial.println("SNMP big size");
+#ifdef DEBUG
+		Serial.println("SNMP big size");
+#endif
 		return SNMP_ERR_TOO_BIG;
 	}
 	
 	//packet check to SNMP and size
 	if( (byte(_packet[0]) != 0x30 ) || ((_packetSize-2)!= int(_packet[1]) ) )
 	{
-		//Serial.println("SNMP size invalid");
+#ifdef DEBUG
+		Serial.println("SNMP size invalid");
+#endif
 		return SNMP_ERR_GEN_ERROR;
 	}
 
 	//check version SNMP
 	if(int(_packet[4]) > SNMP_VERSION) 
 	{
-		//Serial.println("SNMP version invalid");
+#ifdef DEBUG
+		Serial.println("SNMP version invalid");
+#endif
 		return SNMP_ERR_GEN_ERROR;
 	}
-	
+#ifdef DEBUG
+	Serial.println("SNMP packet OK");
+#endif
 	return SNMP_ERR_NO_ERROR;
 }
 
@@ -63,12 +73,20 @@ int packetSNMPcommunity(byte _packet[],int _packetSize,char _community[],int _co
 	{	
 		for (int i=0;i < _comLen;i++)
 		{
-			if(_community[i] != _packet[7+i]) return SNMP_ERR_NO_SUCH_NAME;
-/*			Serial.print("com= ");
+			if(_community[i] != _packet[7+i]) 
+			{
+#ifdef DEBUG
+				Serial.println("SNMP community invalid");
+#endif			
+				return SNMP_ERR_NO_SUCH_NAME;
+			}
+#ifdef DEBUG
+			Serial.print("com= ");
 			Serial.print(char(_community[i]));
 			Serial.print(" pkg= ");
 			Serial.println(char(_packet[7+i]));
-*/		}
+#endif
+		}
 	}
 	return SNMP_ERR_NO_ERROR;
 }
@@ -142,63 +160,57 @@ int packetSNMPoid(byte _packet[],int _packetSize, struct OID *_oid)
 
 unsigned int checkOID( struct OID *_oid)
 {
+	//general
 	//{0x2B,0x6,0x1,0x2,0x1,0x1,x(1-6),0x0}
-	if(_oid.SNMPoid[0] == 0x2B &&
-		_oid.SNMPoid[1] == 0x6 &&
-		_oid.SNMPoid[2] == 0x1 &&
-		_oid.SNMPoid[3] == 0x2 &&
-		_oid.SNMPoid[4] == 0x1 &&
-		_oid.SNMPoid[5] == 0x1 &&
-		_oid.SNMPoid[7] == 0x0)
+	if(_oid->SNMPoid[0] == 0x2B &&
+		_oid->SNMPoid[1] == 0x6 &&
+		_oid->SNMPoid[2] == 0x1 &&
+		_oid->SNMPoid[3] == 0x2 &&
+		_oid->SNMPoid[4] == 0x1 &&
+		_oid->SNMPoid[5] == 0x1 &&
+		_oid->SNMPoid[7] == 0x0)
 	{
-		for(unsigned int i=0;i<=6;i++)
+		for(unsigned int i=1;i<=6;i++)
 		{
-			if (i == unsigned int (_oid.SNMPoid[6]) && unsigned int (_oid.SNMPoid[6]) !=0)
+			if (i == (unsigned int)_oid->SNMPoid[6])
 				return i;
 			else return 0;
 		}
 	}
-	//analog sensors (.1.3.6.1.4.1.36582.1.x91-16).0)
-	//{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x1,0x0}
-	if(_oid.SNMPoid[0] == 0x2B &&
-		_oid.SNMPoid[1] == 0x6 &&
-		_oid.SNMPoid[2] == 0x1 &&
-		_oid.SNMPoid[3] == 0x4 &&
-		_oid.SNMPoid[4] == 0x1 &&
-		_oid.SNMPoid[5] == 0x82 &&
-		_oid.SNMPoid[6] == 0x9D &&
-		_oid.SNMPoid[7] == 0x66 &&
-		_oid.SNMPoid[8] == 0x1 &&
-		_oid.SNMPoid[10] == 0x0)
-	{
-		for(unsigned int i=0;i<=16;i++)
+	//sensors
+	if(_oid->SNMPoid[0] == 0x2B &&
+		_oid->SNMPoid[1] == 0x6 &&
+		_oid->SNMPoid[2] == 0x1 &&
+		_oid->SNMPoid[3] == 0x4 &&
+		_oid->SNMPoid[4] == 0x1 &&
+		_oid->SNMPoid[5] == 0x82 &&
+		_oid->SNMPoid[6] == 0x9D &&
+		_oid->SNMPoid[7] == 0x66 &&
+		_oid->SNMPoid[10] == 0x0)
+	{	
+		//analog sensors (.1.3.6.1.4.1.36582.1.x91-16).0)
+		//{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x1,0x1,0x0}
+		if(_oid->SNMPoid[8] == 0x1)
+		{	
+			for(unsigned int i=1;i<=16;i++)
+			{
+				if (i == (unsigned int)_oid->SNMPoid[9])
+					return i+16;
+				else return 0;
+			}
+		}
+		//digital sensors (.1.3.6.1.4.1.36582.2.y(1-16).0)
+		//{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x1,0x0}
+		if(_oid->SNMPoid[8] == 0x2)
 		{
-			if (i == unsigned int (_oid.SNMPoid[9]) && unsigned int (_oid.SNMPoid[9]) !=0)
-				return i+16;
-			else return 0;
+			for(unsigned int i=1;i<=16;i++)
+			{
+				if (i == (unsigned int)_oid->SNMPoid[9])
+					return i+64;
+				else return 0;
+			}
 		}
 	}
-	//digital sensors (.1.3.6.1.4.1.36582.2.y(1-16).0)
-	//{0x2B,0x6,0x1,0x4,0x1,0x82,0x9D,0x66,0x2,0x1,0x0}
-	if(_oid.SNMPoid[0] == 0x2B &&
-		_oid.SNMPoid[1] == 0x6 &&
-		_oid.SNMPoid[2] == 0x1 &&
-		_oid.SNMPoid[3] == 0x4 &&
-		_oid.SNMPoid[4] == 0x1 &&
-		_oid.SNMPoid[5] == 0x82 &&
-		_oid.SNMPoid[6] == 0x9D &&
-		_oid.SNMPoid[7] == 0x66 &&
-		_oid.SNMPoid[8] == 0x2 &&
-		_oid.SNMPoid[10] == 0x0)
-	{
-		for(unsigned int i=0;i<=16;i++)
-		{
-			if (i == unsigned int (_oid.SNMPoid[9])  && unsigned int (_oid.SNMPoid[9]) !=0)
-				return i+64;
-			else return 0;
-		}
-	}
-	
 	return 0;
 }
 

@@ -46,6 +46,8 @@ Adafruit_BMP085 bmp;
 //-------------
 
 int counter = 0;
+int pkt = 0;
+float t,h,tb,pb;
 
 struct cfgStruct 
 {
@@ -177,10 +179,9 @@ void setup ()
 //------------------------------------------------------------
 void loop ()
 {
-	int error = udp.begin(161);
 	//read sensors
 	//read analog
-	for (int analogChannel = 1; analogChannel < 16; analogChannel++) 
+	for (int analogChannel = 1; analogChannel <= 15; analogChannel++) 
 	{
 		sensorA[analogChannel] = analogRead(analogChannel);
 		/*
@@ -194,11 +195,11 @@ void loop ()
 		*/	
 	}
 	//read DHT
-	float t = dht.readTemperature(0);
-	float h = dht.readHumidity();
+	t = dht.readTemperature(0);
+	h = dht.readHumidity();
 	//read BMP
-	float tb = bmp.readTemperature();
-	float pb = bmp.readPressure()/133.3;
+	tb = bmp.readTemperature();
+	pb = bmp.readPressure()/133.3;
 
 /*
 	if ( t == BAD_TEMP || h == BAD_HUM ) 
@@ -211,12 +212,13 @@ void loop ()
 	//Serial.print("sec ");
 	//Serial.println(millis() / 1000);
 		
-#ifdef SNMP_ON
+//#ifdef SNMP_ON
 	//start udp server
-	//int success = udp.begin(161);
-	//Serial.print("Initialize UDP: ");
-	//Serial.println(success ? "success" : "failed");
-	//byte packet[SNMP_MAX_PACKET_LEN];
+	int error = udp.begin(161);
+#ifdef DEBUG	
+//	Serial.print("Initialize UDP: ");
+//	Serial.println(error ? "success" : "failed");
+#endif
 	
 	int packetSize = udp.parsePacket();
 	
@@ -228,7 +230,7 @@ void loop ()
 		//UDP sender IP and port 
 		IPAddress remoteIP = udp.remoteIP();
 		unsigned int remotePort = udp.remotePort();
-
+#ifdef DEBUG
 		//print remote ip and port
 		Serial.print("From ");
 		for (int i =0; i < 4; i++)
@@ -241,7 +243,7 @@ void loop ()
 		}
 		Serial.print(", port ");
 		Serial.println(remotePort);
-		
+#endif		
 		//read packet
 		byte packet[packetSize];
 		do //read
@@ -250,32 +252,33 @@ void loop ()
 		}
 		while (udp.available());
 		udp.flush(); //finish reading this packet
-/*
-		Serial.print("cfg.communitySNMP = ");
-		Serial.println(cfg.communitySNMP);
-*/		
+
 		//print packet
 		//packetSNMPprint(packet,packetSize);
-		
+		//Serial.println("packetSNMPcheck");
 		//check packet for SNMP
-		error = packetSNMPcheck(packet,packetSize); 
-
-		if(!error)
+		error = packetSNMPcheck(packet,packetSize);
+		//Serial.println(error);
+		
+		if(error == SNMP_ERR_NO_ERROR)
 		{
-			//error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,sizeof(cfg.communitySNMP)-1);
 			error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,strlen(cfg.communitySNMP));
-			//Serial.print("strlen(cfg.communitySNMP)=");
-			//Serial.println(strlen(cfg.communitySNMP));
 			
-			if(!error)
+			if(error == SNMP_ERR_NO_ERROR)
 			{
+				//Serial.println("packetSNMPoid");
 				//print packet
-				packetSNMPprint(packet,packetSize);
+				//packetSNMPprint(packet,packetSize);
 				//TODO read oid
 				error = packetSNMPoid(packet,packetSize,&oid);
-				if(!error)
+				if(error == SNMP_ERR_NO_ERROR)
 				{
-					switch(unsigned int checkOID( struct OID *oid))
+#ifdef	DEBUG
+					Serial.print("oid = ");
+					Serial.println(checkOID(&oid));
+#endif				
+					pkt++;
+					switch(checkOID(&oid))
 					{
 						case 1:
 							
@@ -312,20 +315,10 @@ void loop ()
 							
 							break;
 					}
+					
 				}
-				Serial.print("error = ");
-				Serial.println(error);
-			//	for(int i=0;i<strlen(oid.oid);i++)
-			/*
-				for(int i=0;i<error;i++)
-				{
-					Serial.print("oid.oid[");
-					Serial.print(i);
-					Serial.print("]=");
-					Serial.println(byte(oid.oid[i]),HEX);
-				}
-			*/	
-				
+/*
+#ifdef DEBUG
 				Serial.print("byte SNMPpduType =");
 				Serial.println(oid.SNMPpduType,HEX);
 				Serial.print("int SNMPreqID =");
@@ -344,51 +337,25 @@ void loop ()
 					Serial.print("]=");
 					Serial.println(byte(oid.SNMPoid[i]),HEX);
 				}
-				
 
-				
 				Serial.print("byte SNMPvalType =");
 				Serial.println(oid.SNMPvalType,HEX);
-				
+#endif
+*/			
 			}
 		}
 		
 		//TODO error
 		//Serial.print("error = ");
 		//Serial.println(error);
-/*		for(int i=0;i<10;i++)
-		{
-			Serial.print("size numMIB[");
-			Serial.print(i);
-			Serial.print("]=");
-			Serial.print(strlen(mibSNMP[i].numMIB));
-			Serial.print(" valMIB[");
-			Serial.print(i);
-			Serial.print("]=");
-			Serial.println(mibSNMP[i].valMIB);			
-		}
-*/
+
 	}
-#endif
-	
-	//delay(5000);
-	
-	#ifdef DEBUG
-	/*	
-	Serial.print("TA ");
-	Serial.println(Thermistor(sensorA[15]));
-	Serial.print("DT ");
-	Serial.println(t);
-	Serial.print("DH ");
-	Serial.println(h);
-	Serial.print("BT ");
-	Serial.println(tb);
-	Serial.print("BP ");
-	Serial.println(pb);	
-	*/
-	//Serial.print("sec ");
-	//Serial.println(millis() / 1000);
-	#endif
+	else 
+	{
+		udp.flush();
+	}
+//#endif
+		
 	
 	if(counter < 500) 
 	{
@@ -399,10 +366,28 @@ void loop ()
 		counter = 0;
 		//udp.stop(); //stop udp server
 		Ethernet.maintain(); //reinit eth DHCP
-		delay(1000);
+		delay(300);
 		//udp.begin(161);
 		Serial.print("Maintain sec ");
 		Serial.println(millis() / 1000);
+		Serial.print("Pakets ");
+		Serial.println(pkt);		
+#ifdef DEBUG
+		
+		Serial.print("TA ");
+		Serial.println(Thermistor(sensorA[15]));
+		Serial.print("DT ");
+		Serial.println(t);
+		Serial.print("DH ");
+		Serial.println(h);
+		Serial.print("BT ");
+		Serial.println(tb);
+		Serial.print("BP ");
+		Serial.println(pb);	
+
+		//Serial.print("sec ");
+		//Serial.println(millis() / 1000);
+#endif		
 		Serial.println("==================");
 	}
 	udp.stop(); //stop udp server
