@@ -6,12 +6,6 @@
 //#undef DEBUG
 #define LCDB
 //#undef LCDB
-//#define UIPETHERNET_DEBUG
-#define SNMP_ON
-//#undef SNMP_ON
-//#define HTTP_ON
-#undef HTTP_ON
-
 
 #include <Arduino.h>
 #include <SPI.h>
@@ -185,13 +179,13 @@ void loop ()
 	{
 		sensorA[analogChannel] = analogRead(analogChannel);
 		/*
-		#ifdef DEBUG
+#ifdef DEBUG
 		Serial.print(analogChannel);
 		Serial.print(": ");
 		Serial.print(Thermistor(sensorA[analogChannel]));
 		Serial.print(" - - ");
 		Serial.println(sensorA[analogChannel]);
-		#endif
+#endif
 		*/	
 	}
 	//read DHT
@@ -201,18 +195,6 @@ void loop ()
 	tb = bmp.readTemperature();
 	pb = bmp.readPressure()/133.3;
 
-/*
-	if ( t == BAD_TEMP || h == BAD_HUM ) 
-	{ // if error conditions          
-		Serial.println("Failed to read from DHT");
-		t=0.0;
-		h=0.0;
-	}
-*/
-	//Serial.print("sec ");
-	//Serial.println(millis() / 1000);
-		
-//#ifdef SNMP_ON
 	//start udp server
 	int error = udp.begin(161);
 #ifdef DEBUG	
@@ -226,7 +208,7 @@ void loop ()
 	if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
 	//if(packetSize > 0)
 	{
-		struct OID oid = {0,0,0,0,0,0,0,0,0};
+		struct OID oid;// = {0,0,0,0,0,0,0,0,0};
 		//UDP sender IP and port 
 		IPAddress remoteIP = udp.remoteIP();
 		unsigned int remotePort = udp.remotePort();
@@ -251,8 +233,7 @@ void loop ()
 			int len = udp.read(packet,packetSize); 
 		}
 		while (udp.available());
-		//udp.flush(); //finish reading this packet
-
+		
 		//print packet
 		//packetSNMPprint(packet,packetSize);
 		//Serial.println("packetSNMPcheck");

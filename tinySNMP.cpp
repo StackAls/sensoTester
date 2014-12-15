@@ -73,7 +73,7 @@ int packetSNMPcommunity(byte _packet[],int _packetSize,char _community[],int _co
 	{	
 		for (int i=0;i < _comLen;i++)
 		{
-			if(_community[i] != _packet[7+i]) 
+			if(_community[i] != _packet[6+1+i]) 
 			{
 #ifdef DEBUG
 				Serial.println("SNMP community invalid");
@@ -94,53 +94,68 @@ int packetSNMPcommunity(byte _packet[],int _packetSize,char _community[],int _co
 int packetSNMPoid(byte _packet[],int _packetSize, struct OID *_oid)
 {
 	//length community
-	unsigned int _comLen = _packet[6];
-	//check pdu
-	byte _pduType = _packet[6 + _comLen + 1];
-	unsigned int _pduLen = _packet[6 + _comLen + 2];
-	//request id
-	byte _ridType = _packet[6 + _comLen + 3];
-	unsigned int _ridLen = _packet[6 + _comLen + 4];
-	for (unsigned int i = 0;i < _ridLen;i++)
+	_oid->SNMPcommLen = _packet[6];
+	//community
+	for(unsigned int i = 0;i <= _oid->SNMPcommLen;i++ )
 	{
-		byte _ridValue[i] = _packet[6 + _comLen + 4 + 1 + i];
+		_oid->SNMPcomm[i] = _packet[6 + 1 + i]
+	}
+	//pdu
+	_oid->SNMPpduType = _packet[6 + _oid->SNMPcommLen + 1];
+	unsigned int _pduLen = _packet[6 + _oid->SNMPcommLen + 2];
+	//request id
+	_oid->SNMPridType = _packet[6 + _oid->SNMPcommLen + 3];
+	_oid->SNMPridLen = _packet[6 + _oid->SNMPcommLen + 4];
+	for (unsigned int i = 0;i <= _oid->SNMPridLen;i++)
+	{
+		_oid->SNMPrid[i] = _packet[6 + _oid->SNMPcommLen + 4 + 1 + i];
 	}
 	//error
-	byte _errType = _packet[6 + _comLen + 4 + _ridLen + 1];
-	unsigned int _errLen = _packet[6 + _comLen + 4 + _ridLen + 2];
-	byte _errValue = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen];
+	_oid->SNMPerrType = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPcommLen + 1];
+	_oid->SNMPerrLen = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2];
+	for(unsigned int i = 0;i <= _oid->SNMPerrLen;i++ )
+	{
+		_oid->SNMPerrID[i] = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + 1 + i];
+	}
 	//error index
-	byte _eriType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 1];
-	unsigned int _eriLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2];
-	byte _eriValue = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen];	
+	_oid->SNMPeriType = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 1];
+	_oid->SNMPeriLen = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2];
+	for(unsigned int i = 0;i <= _oid->SNMPeriLen;i++ )
+	{
+		_oid->SNMPeriID[i] = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + 1 + i];
+	}
 	//varbind list
-	byte _vblType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 1];
-	unsigned int _vblLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 2];
+	byte _vblType = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 1];
+	unsigned int _vblLen = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 2];
 	//varbind
-	byte _vbiType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 3];
-	unsigned int _vbiLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 4];
+	byte _vbiType = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 3];
+	unsigned int _vbiLen = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 4];
 	//object id
-	byte _oidType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 5];
-	unsigned int _oidLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6];
+	_oid->SNMPoidType = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 5];
+	_oid->SNMPoidLen = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 6];
+	for (unsigned int i=0;i <= _oid->SNMPoidLen;i++)
+	{
+		_oid->SNMPoid[i] = byte(_packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 6 + 1 + i]);
+	}
 	//value oid
-	byte _valueType = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 1];
-	unsigned int _valueLen = _packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 2];
+	byte _valueType = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 6 + _oidLen + 1];
+	unsigned int _valueLen = _packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 6 + _oidLen + 2];
 
 	//_oid.commLen=_comLen;
-	_oid->SNMPpduType = _pduType;
+	//_oid->SNMPpduType = _pduType;
 	//_oid->SNMPreqID = _ridValue;
-	_oid->SNMPerr = _errValue;
-	_oid->SNMPerrID = _eriValue;
-	_oid->SNMPoidLen = _oidLen;
-	_oid->SNMPvalType = _valueType;
-	_oid->SNMPvalLen = _valueLen;
+	//_oid->SNMPerr = _errValue;
+	//_oid->SNMPerrID = _eriValue;
+	//_oid->SNMPoidLen = _oidLen;
+	//_oid->SNMPvalType = _valueType;
+	//_oid->SNMPvalLen = _valueLen;
 	
-	//read oid
+/*	//read oid
 	if(_oidLen > 0 && _oidLen <= SNMP_MAX_OID_SIZE)
 	{
 		for (int i=0;i <= _oidLen;i++)
 		{
-			_oid->SNMPoid[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 7 + i]);
+			_oid->SNMPoid[i] = byte(_packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 7 + i]);
 			//Serial.println(byte(_oid.oid[i]),HEX);
 		}
 
@@ -149,7 +164,7 @@ int packetSNMPoid(byte _packet[],int _packetSize, struct OID *_oid)
 		{
 			for (int i=0;i <= _valueLen;i++)
 			{
-				_oid->SNMPval[i] = byte(_packet[6 + _comLen + 4 + _ridLen + 2 + _errLen + 2 + _eriLen + 6 + _oidLen + 3 + i]);
+				_oid->SNMPval[i] = byte(_packet[6 + _oid->SNMPcommLen + 4 + _oid->SNMPridLen + 2 + _oid->SNMPerrLen + 2 + _oid->SNMPeriLen + 6 + _oidLen + 3 + i]);
 			}
 		}
 		return 0;
@@ -158,7 +173,7 @@ int packetSNMPoid(byte _packet[],int _packetSize, struct OID *_oid)
 	{
 		return 1;
 	}
-
+*/
 }
 
 unsigned int checkOID( struct OID *_oid)

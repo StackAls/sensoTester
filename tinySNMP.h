@@ -21,17 +21,17 @@
 #define	SNMP_TYPE_NULL			0x05
 #define	SNMP_TYPE_OID			0x06
 
-#define SNMP_PDU_GET			0xA0
+#define SNMP_PDU_GET				0xA0
 #define SNMP_PDU_GET_NEXT		0xA1
 #define SNMP_PDU_RESPONSE		0xA2
-#define SNMP_PDU_SET			0xA3
+#define SNMP_PDU_SET				0xA3
 #define SNMP_PDU_TRAP			0xA4
 
 #define SNMP_COMM_MAX_SIZE		7
 
-#define SNMP_MAX_OID_SIZE		16
+#define SNMP_MAX_OID_SIZE		20
 #define SNMP_MAX_OID_VAL_SIZE	20
-#define SNMP_MAX_RID			4
+#define SNMP_MAX_ID				4
 
 #define SNMP_MAX_MIB_SIZE		SNMP_MAX_OID_SIZE
 #define SNMP_MAX_MIB_VAL_SIZE	SNMP_MAX_OID_VAL_SIZE+1
@@ -40,16 +40,30 @@ struct OID
 {
 	//unsigned int SNMPsize;
 	//unsigned int SNMPver;
-	//char SNMPcomm[SNMP_COMM_MAX_SIZE];
-	//unsigned int commLen;
+	//community
+	unsigned int SNMPcommLen;
+	byte SNMPcomm[SNMP_COMM_MAX_SIZE];
+	//pdu
 	byte SNMPpduType;
-	byte SNMPreqID[SNMP_MAX_RID];
-	byte SNMPerr;
-	byte SNMPerrID;
+	//request id
+	byte SNMPridType;
+	unsigned int SNMPridLen;
+	byte SNMPrid[SNMP_MAX_ID];
+	//error
+	byte SNMPerrType;
+	unsigned int SNMPerrLen;
+	byte SNMPerrID[SNMP_MAX_ID];
+	//error index
+	byte SNMPeriType;
+	unsigned int SNMPeriLen;
+	byte SNMPeriID[SNMP_MAX_ID];
+	//object id
+	byte SNMPoidType;
 	unsigned int SNMPoidLen;
 	byte SNMPoid[SNMP_MAX_OID_SIZE];
-	unsigned int SNMPvalLen;
+	//value
 	byte SNMPvalType;
+	unsigned int SNMPvalLen;
 	byte SNMPval[SNMP_MAX_OID_VAL_SIZE];
 };
 
