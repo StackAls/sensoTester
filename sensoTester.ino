@@ -251,7 +251,7 @@ void loop ()
 			int len = udp.read(packet,packetSize); 
 		}
 		while (udp.available());
-		udp.flush(); //finish reading this packet
+		//udp.flush(); //finish reading this packet
 
 		//print packet
 		//packetSNMPprint(packet,packetSize);
@@ -278,49 +278,36 @@ void loop ()
 					Serial.println(checkOID(&oid));
 #endif				
 					pkt++;
-					switch(checkOID(&oid))
+
+					if(checkOID(&oid)==1)					
 					{
-						case 1:
-							
-							break;
-						case 2:
-							
-							break;
-						case 3:
-							
-							break;
-						case 5:
-							
-							break;
-						case 6:
-							
-							break;
-						case 17:
-							
-							break;
-						case 18:
-							
-							break;
-						case 19:
-							
-							break;
-						case 20:
-							
-							break;
-						case 4:
-							
-							break;
-						
-						default:
-							
-							break;
+						int sizee = 28 + strlen("Arduino") + strlen(cfg.communitySNMP);
+						byte resp[]=
+						{
+							0x30,(byte)sizee,
+							SNMP_TYPE_INT,0x01,(byte)SNMP_VERSION,
+							SNMP_TYPE_OCTETS,0x06,'p','u','b','l','i','c',
+							SNMP_PDU_RESPONSE,(byte)(sizee - 8 - strlen(cfg.communitySNMP)),
+							0x02,0x01,(byte)oid.SNMPreqID,
+							0x02,0x01,0x00,
+							0x02,0x01,0x00,
+							0x30,(byte)(10+strlen("Arduino")),
+							0x2B,0x6,0x1,0x2,0x1,0x1,0x1,0x0,
+							0x04,strlen("Arduino"),'A','r','d','u','i','n','o'
+						};
+						packetSNMPprint(resp,sizee+2);
+						udp.beginPacket(udp.remoteIP(), udp.remotePort());
+						udp.write(resp, sizee + 2);
+						udp.endPacket();	
 					}
-					
+				
 				}
-/*
+
 #ifdef DEBUG
 				Serial.print("byte SNMPpduType =");
 				Serial.println(oid.SNMPpduType,HEX);
+				Serial.print("int SNMPreqID =");
+				Serial.println(oid.SNMPreqID,DEC);
 				Serial.print("int SNMPreqID =");
 				Serial.println(oid.SNMPreqID,DEC);
 				Serial.print("byte SNMPerr=");
@@ -341,7 +328,7 @@ void loop ()
 				Serial.print("byte SNMPvalType =");
 				Serial.println(oid.SNMPvalType,HEX);
 #endif
-*/			
+			
 			}
 		}
 		
@@ -350,10 +337,9 @@ void loop ()
 		//Serial.println(error);
 
 	}
-	else 
-	{
-		udp.flush();
-	}
+
+	udp.flush(); //finish reading this packet
+	
 //#endif
 		
 	
@@ -368,10 +354,11 @@ void loop ()
 		Ethernet.maintain(); //reinit eth DHCP
 		delay(300);
 		//udp.begin(161);
-		Serial.print("Maintain sec ");
+/*		Serial.print("Maintain sec ");
 		Serial.println(millis() / 1000);
 		Serial.print("Pakets ");
 		Serial.println(pkt);		
+		
 #ifdef DEBUG
 		
 		Serial.print("TA ");
@@ -385,10 +372,8 @@ void loop ()
 		Serial.print("BP ");
 		Serial.println(pb);	
 
-		//Serial.print("sec ");
-		//Serial.println(millis() / 1000);
 #endif		
-		Serial.println("==================");
+*/		Serial.println("==================");
 	}
 	udp.stop(); //stop udp server
 	//udp.begin(161);

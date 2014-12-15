@@ -31,6 +31,7 @@
 
 #define SNMP_MAX_OID_SIZE		16
 #define SNMP_MAX_OID_VAL_SIZE	20
+#define SNMP_MAX_RID			4
 
 #define SNMP_MAX_MIB_SIZE		SNMP_MAX_OID_SIZE
 #define SNMP_MAX_MIB_VAL_SIZE	SNMP_MAX_OID_VAL_SIZE+1
@@ -42,7 +43,7 @@ struct OID
 	//char SNMPcomm[SNMP_COMM_MAX_SIZE];
 	//unsigned int commLen;
 	byte SNMPpduType;
-	int SNMPreqID;
+	byte SNMPreqID[SNMP_MAX_RID];
 	byte SNMPerr;
 	byte SNMPerrID;
 	unsigned int SNMPoidLen;
