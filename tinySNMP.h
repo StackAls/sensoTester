@@ -52,11 +52,11 @@ struct OID
 	//error
 	byte SNMPerrType;
 	unsigned int SNMPerrLen;
-	byte SNMPerrID[SNMP_MAX_ID];
+	byte SNMPerr[SNMP_MAX_ID];
 	//error index
 	byte SNMPeriType;
 	unsigned int SNMPeriLen;
-	byte SNMPeriID[SNMP_MAX_ID];
+	byte SNMPeri[SNMP_MAX_ID];
 	//object id
 	byte SNMPoidType;
 	unsigned int SNMPoidLen;
@@ -67,18 +67,10 @@ struct OID
 	byte SNMPval[SNMP_MAX_OID_VAL_SIZE];
 };
 
-/*
-struct MIB
-{
-	char numMIB[SNMP_MAX_MIB_SIZE];
-	char valMIB[SNMP_MAX_MIB_VAL_SIZE];
-};
-*/
-
 //print packet
 void packetSNMPprint(byte packet[],int packet_size);
 //check udp packet
-//buffer,size,community,mib
+//buffer,size
 int packetSNMPcheck(byte packet[],int packet_size);
 //return community name
 int packetSNMPcommunity(byte packet[],int packet_size,char community[],int community_size);
@@ -86,6 +78,5 @@ int packetSNMPcommunity(byte packet[],int packet_size,char community[],int commu
 int packetSNMPoid(byte packet[],int packet_size, struct OID *oid);
 //check oid
 unsigned int checkOID( struct OID *oid);
-//int packetSNMPoid(byte packet[],int packet_size,byte oid[],int oid_size);
 
 #endif

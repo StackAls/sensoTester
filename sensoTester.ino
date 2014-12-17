@@ -20,11 +20,9 @@
 #include "thermistor.h"
 #include "Adafruit_BMP085.h"
 
+#include "tinySNMP.h"
+EthernetUDP udp;
 
-#ifdef SNMP_ON
-	#include "tinySNMP.h"
-	EthernetUDP udp;
-#endif
 //Analog sensor
 //int AnalogChannel = 15;
 //int DigitalChannel = 8;
@@ -202,14 +200,13 @@ void loop ()
 //	Serial.println(error ? "success" : "failed");
 #endif
 	
+	struct OID oid;
 	int packetSize = udp.parsePacket();
 	
 	//packet exist
 	if(packetSize > 0 && packetSize <= SNMP_MAX_PACKET_LEN)
 	//if(packetSize > 0)
 	{
-		struct OID oid;// = {0,0,0,0,0,0,0,0,0};
-		//UDP sender IP and port 
 		IPAddress remoteIP = udp.remoteIP();
 		unsigned int remotePort = udp.remotePort();
 #ifdef DEBUG
@@ -230,9 +227,11 @@ void loop ()
 		byte packet[packetSize];
 		do //read
 		{
-			int len = udp.read(packet,packetSize); 
+			udp.read(packet,packetSize);
 		}
 		while (udp.available());
+		
+		udp.flush(); //finish reading this packet
 		
 		//print packet
 		//packetSNMPprint(packet,packetSize);
@@ -255,46 +254,107 @@ void loop ()
 				if(error == SNMP_ERR_NO_ERROR)
 				{
 #ifdef	DEBUG
-					Serial.print("oid = ");
-					Serial.println(checkOID(&oid));
+					//Serial.print("oid = ");
+					//Serial.println(checkOID(&oid));
 #endif				
 					pkt++;
 
 					if(checkOID(&oid)==1)					
 					{
-						int sizee = 28 + strlen("Arduino") + strlen(cfg.communitySNMP);
-						byte resp[]=
+						char value[] = "Arduino tinySNMP";
+						oid.SNMPvalType = SNMP_TYPE_OCTETS;
+						oid.SNMPvalLen = strlen(value);
+						
+						unsigned int size_resp = 23 + oid.SNMPcommLen + oid.SNMPridLen + oid.SNMPerrLen + oid.SNMPeriLen + oid.SNMPoidLen + oid.SNMPvalLen;
+						byte resp[size_resp];
+						unsigned int x = 0;
+						//begin
+						resp[x++] = 0x30;
+						resp[x++] = (byte)(size_resp - 2); // <127
+						resp[x++] = SNMP_TYPE_INT;
+						resp[x++] = 0x01;
+						resp[x++] = (byte)SNMP_VERSION;
+						//community
+						resp[x++] = SNMP_TYPE_OCTETS;
+						resp[x++] = (byte)oid.SNMPcommLen;
+						for (int i=0;i<oid.SNMPcommLen;i++)
 						{
-							0x30,(byte)sizee,
-							SNMP_TYPE_INT,0x01,(byte)SNMP_VERSION,
-							SNMP_TYPE_OCTETS,0x06,'p','u','b','l','i','c',
-							SNMP_PDU_RESPONSE,(byte)(sizee - 8 - strlen(cfg.communitySNMP)),
-							0x02,0x01,(byte)oid.SNMPreqID,
-							0x02,0x01,0x00,
-							0x02,0x01,0x00,
-							0x30,(byte)(10+strlen("Arduino")),
-							0x2B,0x6,0x1,0x2,0x1,0x1,0x1,0x0,
-							0x04,strlen("Arduino"),'A','r','d','u','i','n','o'
-						};
-						packetSNMPprint(resp,sizee+2);
-						udp.beginPacket(udp.remoteIP(), udp.remotePort());
-						udp.write(resp, sizee + 2);
-						udp.endPacket();	
+							resp[x++]=oid.SNMPcomm[i];
+							
+							
+						}
+						//PDU
+						resp[x++] = SNMP_PDU_RESPONSE;
+						resp[x++] = (byte)(14 + oid.SNMPridLen + oid.SNMPerrLen + oid.SNMPeriLen + oid.SNMPoidLen + oid.SNMPvalLen);
+						//request id
+						resp[x++] = oid.SNMPridType;
+						resp[x++] = oid.SNMPridLen;
+						for (int i=0;i<oid.SNMPridLen;i++)
+						{
+							resp[x++]=oid.SNMPrid[i];
+							
+						}
+						//error
+						resp[x++] = oid.SNMPerrType;
+						resp[x++] = oid.SNMPerrLen;
+						for (int i=0;i<oid.SNMPerrLen;i++)
+						{
+							resp[x++]=oid.SNMPerr[i];
+							
+						}
+						//error id
+						resp[x++] = oid.SNMPeriType;
+						resp[x++] = oid.SNMPeriLen;
+						for (int i=0;i<oid.SNMPeriLen;i++)
+						{
+							resp[x++]=oid.SNMPeri[i];
+							
+						}
+						//varbind list
+						resp[x++]=0x30;
+						resp[x++]=(byte)(6 + oid.SNMPoidLen + oid.SNMPvalLen);
+						//varbind
+						resp[x++]=0x30;
+						resp[x++]=(byte)(4 + oid.SNMPoidLen + oid.SNMPvalLen);
+						//oid
+						resp[x++] = oid.SNMPoidType;
+						resp[x++] = oid.SNMPoidLen;
+						for (int i=0;i<oid.SNMPoidLen;i++)
+						{
+							resp[x++]=oid.SNMPoid[i];
+							
+						}
+						//value
+						resp[x++] = oid.SNMPvalType;
+						resp[x++] = oid.SNMPvalLen;
+						for (int i=0;i<oid.SNMPvalLen;i++)
+						{
+							resp[x++]=(byte)(value[i]);
+							
+						}
+					
+						packetSNMPprint(resp,size_resp);
+					
+						//udp.beginPacket(udp.remoteIP(), udp.remotePort());
+						udp.beginPacket(remoteIP, remotePort);
+						udp.write(resp, size_resp);
+						udp.endPacket();
+						//udp.flush();
 					}
 				
 				}
-
+/*
 #ifdef DEBUG
 				Serial.print("byte SNMPpduType =");
 				Serial.println(oid.SNMPpduType,HEX);
 				Serial.print("int SNMPreqID =");
-				Serial.println(oid.SNMPreqID,DEC);
+				//Serial.println(oid.SNMPrid,DEC);
 				Serial.print("int SNMPreqID =");
-				Serial.println(oid.SNMPreqID,DEC);
+				//Serial.println(oid.SNMPrid,DEC);
 				Serial.print("byte SNMPerr=");
-				Serial.println(oid.SNMPerr,HEX);
+				//Serial.println(oid.SNMPerr,HEX);
 				Serial.print("byte SNMPerrID =");
-				Serial.println(oid.SNMPerrID,HEX);
+				//Serial.println(oid.SNMPeri,HEX);
 				Serial.print("int SNMPoidLen =");
 				Serial.println(oid.SNMPoidLen,DEC);
 				
@@ -309,7 +369,7 @@ void loop ()
 				Serial.print("byte SNMPvalType =");
 				Serial.println(oid.SNMPvalType,HEX);
 #endif
-			
+			*/
 			}
 		}
 		
@@ -318,8 +378,10 @@ void loop ()
 		//Serial.println(error);
 
 	}
-
-	udp.flush(); //finish reading this packet
+	else
+	{
+		udp.flush(); //finish reading this packet
+	}
 	
 //#endif
 		
