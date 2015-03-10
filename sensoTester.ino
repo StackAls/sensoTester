@@ -8,20 +8,19 @@
 //#undef LCDB
 
 #include <Arduino.h>
-#include <SPI.h>
-#include <EEPROM.h>
-#include <avr/pgmspace.h>
-#include <Wire.h>
+//#include <SPI.h>
+//#include <EEPROM.h>
+//#include <avr/pgmspace.h>
+#include <Wire.h> //for bmp085
 
 #include "UIPEthernet.h"
 #include "UIPUdp.h"
+EthernetUDP udp;
+#include "tinySNMP.h"
 
 #include "DHT.h"
 #include "thermistor.h"
 #include "Adafruit_BMP085.h"
-
-#include "tinySNMP.h"
-EthernetUDP udp;
 
 //Analog sensor
 //int AnalogChannel = 15;
@@ -46,8 +45,9 @@ struct cfgStruct
 	//General settings
 	char cfgVersion[6];	//config version
 	//Network settings
-	 byte mac[7]; 
-	 byte ip[5],subnet[5],gateway[5],dnsServer[5];
+	byte mac[7]; // ethernet interface mac address
+	// ip address,subnet,gateway,dns
+	byte ip[5],subnet[5],gateway[5],dnsServer[5];
 	//char c;
 	//long d;
 	//float e[6];
@@ -66,16 +66,6 @@ struct cfgStruct
 		//{4.5, 5.5, 7, 8.5, 10, 12}
 		"public"
 	};
-
-	
-
-/*
-static byte mymac[] = { 0x00,0x99,0x99,0x3D,0x30,0x42 };  // ethernet interface mac address
-IPAddress myip(10,62,64,249);  // default ip address
-IPAddress subnet(255,255,255,0);  // default subnet
-IPAddress gateway(10,62,64,8);   // default gateway
-IPAddress dnsServer(10,62,0,235);  // default dns
-*/
 
 /*
 struct MIB mibSNMP[] =
@@ -163,6 +153,7 @@ void setup ()
 
 	//start udp server
 	//int success = udp.begin(161);
+	udp.begin(161);
 	//Serial.print("Initialize UDP: ");
 	//Serial.println(success ? "success" : "failed");
 	
@@ -194,7 +185,8 @@ void loop ()
 	pb = bmp.readPressure()/133.3;
 
 	//start udp server
-	int error = udp.begin(161);
+	int error;
+	//int error = udp.begin(161);
 #ifdef DEBUG	
 //	Serial.print("Initialize UDP: ");
 //	Serial.println(error ? "success" : "failed");
@@ -231,7 +223,7 @@ void loop ()
 		}
 		while (udp.available());
 		
-		udp.flush(); //finish reading this packet
+		//udp.flush(); //flush reading this packet
 		
 		//print packet
 		//packetSNMPprint(packet,packetSize);
@@ -242,6 +234,7 @@ void loop ()
 		
 		if(error == SNMP_ERR_NO_ERROR)
 		{
+			//check community
 			error = packetSNMPcommunity(packet,packetSize,cfg.communitySNMP,strlen(cfg.communitySNMP));
 			
 			if(error == SNMP_ERR_NO_ERROR)
@@ -249,8 +242,9 @@ void loop ()
 				//Serial.println("packetSNMPoid");
 				//print packet
 				//packetSNMPprint(packet,packetSize);
-				//TODO read oid
-				error = packetSNMPoid(packet,packetSize,&oid);
+				
+				//check oid
+				error = packetSNMPread(packet,packetSize,&oid);
 				if(error == SNMP_ERR_NO_ERROR)
 				{
 #ifdef	DEBUG
@@ -270,7 +264,7 @@ void loop ()
 						unsigned int x = 0;
 						//begin
 						resp[x++] = 0x30;
-						resp[x++] = (byte)(size_resp - 2); // <127
+						resp[x++] = (byte)(size_resp - 2); // TODO <127
 						resp[x++] = SNMP_TYPE_INT;
 						resp[x++] = 0x01;
 						resp[x++] = (byte)SNMP_VERSION;
@@ -280,8 +274,7 @@ void loop ()
 						for (int i=0;i<oid.SNMPcommLen;i++)
 						{
 							resp[x++]=oid.SNMPcomm[i];
-							
-							
+
 						}
 						//PDU
 						resp[x++] = SNMP_PDU_RESPONSE;
@@ -307,8 +300,7 @@ void loop ()
 						resp[x++] = oid.SNMPeriLen;
 						for (int i=0;i<oid.SNMPeriLen;i++)
 						{
-							resp[x++]=oid.SNMPeri[i];
-							
+							resp[x++]=oid.SNMPeri[i];	
 						}
 						//varbind list
 						resp[x++]=0x30;
@@ -335,71 +327,45 @@ void loop ()
 					
 						packetSNMPprint(resp,size_resp);
 					
-						//udp.beginPacket(udp.remoteIP(), udp.remotePort());
 						udp.beginPacket(remoteIP, remotePort);
 						udp.write(resp, size_resp);
-						udp.endPacket();
-						//udp.flush();
+						udp.endPacket();	
 					}
 				
 				}
-/*
-#ifdef DEBUG
-				Serial.print("byte SNMPpduType =");
-				Serial.println(oid.SNMPpduType,HEX);
-				Serial.print("int SNMPreqID =");
-				//Serial.println(oid.SNMPrid,DEC);
-				Serial.print("int SNMPreqID =");
-				//Serial.println(oid.SNMPrid,DEC);
-				Serial.print("byte SNMPerr=");
-				//Serial.println(oid.SNMPerr,HEX);
-				Serial.print("byte SNMPerrID =");
-				//Serial.println(oid.SNMPeri,HEX);
-				Serial.print("int SNMPoidLen =");
-				Serial.println(oid.SNMPoidLen,DEC);
-				
-				for(int i=0;i<oid.SNMPoidLen;i++)
-				{
-					Serial.print("SNMPoid[");
-					Serial.print(i);
-					Serial.print("]=");
-					Serial.println(byte(oid.SNMPoid[i]),HEX);
-				}
-
-				Serial.print("byte SNMPvalType =");
-				Serial.println(oid.SNMPvalType,HEX);
-#endif
-			*/
 			}
 		}
 		
 		//TODO error
 		//Serial.print("error = ");
 		//Serial.println(error);
-
+		
+		udp.stop();
+		udp.begin(161);
 	}
 	else
 	{
-		udp.flush(); //finish reading this packet
+		udp.flush(); //flush reading this packet
+		udp.stop();
+		udp.begin(161);
 	}
 	
 //#endif
 		
 	
-	if(counter < 500) 
+	if(counter < 1000) //time to reinit eth
 	{
 		counter++;
 	}
 	else
 	{
 		counter = 0;
-		//udp.stop(); //stop udp server
 		Ethernet.maintain(); //reinit eth DHCP
 		delay(300);
-		//udp.begin(161);
-/*		Serial.print("Maintain sec ");
+
+		Serial.print("Maintain sec ");
 		Serial.println(millis() / 1000);
-		Serial.print("Pakets ");
+/*		Serial.print("Pakets ");
 		Serial.println(pkt);		
 		
 #ifdef DEBUG
@@ -416,9 +382,14 @@ void loop ()
 		Serial.println(pb);	
 
 #endif		
-*/		Serial.println("==================");
+*/	
+		//udp.stop();
+		//udp.begin(161);
+		Serial.println("==================");
+		
 	}
-	udp.stop(); //stop udp server
-	//udp.begin(161);
-	//delay(500);
+	
+	//stop udp server
+	//udp.stop(); 
+	
 }

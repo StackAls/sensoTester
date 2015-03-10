@@ -1,8 +1,7 @@
 #ifndef TINYSNMP_H
 #define TINYSNMP_H
 
-#include "UIPEthernet.h"
-#include "UIPUdp.h"
+#include <Arduino.h>
 
 #define SNMP_MAX_PACKET_LEN 	127
 #define SNMP_VERSION			1	//2c
@@ -74,8 +73,8 @@ void packetSNMPprint(byte packet[],int packet_size);
 int packetSNMPcheck(byte packet[],int packet_size);
 //return community name
 int packetSNMPcommunity(byte packet[],int packet_size,char community[],int community_size);
-//return oid & value
-int packetSNMPoid(byte packet[],int packet_size, struct OID *oid);
+//read packet to struct
+int packetSNMPread(byte packet[],int packet_size, struct OID *oid);
 //check oid
 unsigned int checkOID( struct OID *oid);
 

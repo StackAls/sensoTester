@@ -5,12 +5,6 @@
 void packetSNMPprint(byte _packet[],int _packetSize)
 {
 	//print packet
-	Serial.print("Packet len=");
-	Serial.print(_packetSize,DEC);
-	Serial.print(" | Sequense len=");
-	Serial.println(_packet[1],DEC);
-	Serial.print("Packet ID= ");
-	Serial.println(_packet[0],HEX);
 	
 	Serial.println("Packet = byte - int - char");
 	for(int n = 0;n < _packetSize;n++)
@@ -73,7 +67,7 @@ int packetSNMPcommunity(byte _packet[],int _packetSize,char _community[],int _co
 	{	
 		for (int i=0;i < _comLen;i++)
 		{
-			if(_community[i] != _packet[6+1+i]) 
+			if(_community[i] != _packet[7+i]) 
 			{
 #ifdef DEBUG
 				Serial.println("SNMP community invalid");
@@ -86,7 +80,7 @@ int packetSNMPcommunity(byte _packet[],int _packetSize,char _community[],int _co
 	return SNMP_ERR_NO_ERROR;
 }
 
-int packetSNMPoid(byte _packet[],int _packetSize, struct OID *_oid)
+int packetSNMPread(byte _packet[],int _packetSize, struct OID *_oid)
 {
 	//length community
 	_oid->SNMPcommLen = _packet[6];
